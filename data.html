@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Keystroke Data</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    main { max-width: 1100px; margin: 32px auto; padding: 0 16px; }
+    td .row { gap: 4px; }
+    #preview td, #preview th { font: 12px ui-monospace, monospace; }
+  </style>
+</head>
+<body>
+<main>
+  <div class="row" style="justify-content:space-between">
+    <h1>Recorded sessions</h1>
+    <button id="exportAll">Export all</button>
+  </div>
+  <p class="muted">Each export downloads <code>P01_S1.csv</code> (one row per key press, release or marker) and <code>P01_S1_meta.json</code>. Data is stored only in this browser.</p>
+  <div class="scroll"><table id="sessions"></table></div>
+  <div id="previewWrap" style="margin-top:24px"></div>
+</main>
+<script src="common.js"></script>
+<script src="data.js"></script>
+</body>
+</html>

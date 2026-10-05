@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body { width: 320px; padding: 14px; }
+    #toggle { width: 100%; margin-top: 12px; padding: 10px; }
+    #sites label { display: flex; gap: 6px; font-weight: 400; margin: 3px 0; }
+    .links { display: flex; gap: 6px; margin-top: 10px; }
+    .links button { flex: 1; }
+  </style>
+</head>
+<body>
+  <h1>Keystroke Collector</h1>
+
+  <fieldset id="form" style="border:0;padding:0;margin:0">
+    <label for="participant">Participant</label>
+    <select id="participant"></select>
+
+    <label for="label">State</label>
+    <select id="label"></select>
+    <div class="row" style="margin-top:6px">
+      <input id="newLabel" type="text" placeholder="New state label">
+      <button id="addLabel">+ Add</button>
+    </div>
+
+    <label for="alertness">Alertness <small>(1 = exhausted, 5 = fully alert)</small></label>
+    <select id="alertness">
+      <option value="">Choose…</option>
+      <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+    </select>
+
+    <label>Record on</label>
+    <div id="sites"></div>
+  </fieldset>
+
+  <div class="card" id="test"></div>
+
+  <button id="toggle" class="primary">Start recording</button>
+  <div id="status" class="muted" style="margin-top:8px"></div>
+
+  <div class="links">
+    <button id="data">View / export data</button>
+  </div>
+  <p class="muted" style="font-size:12px;margin:10px 0 0">Names are only shown here. Files use P01–P04. Type in English, and type every message yourself.</p>
+
+  <script src="common.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

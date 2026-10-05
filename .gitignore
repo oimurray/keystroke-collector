@@ -1,0 +1,4 @@
+.DS_Store
+# Keystroke data contains typed text: never commit it
+*.csv
+*_meta.json
