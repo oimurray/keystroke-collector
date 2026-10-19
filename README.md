@@ -13,6 +13,7 @@ Supported sites (tick or untick them in the popup): chatgpt.com, chat.openai.com
 1. Open the popup and choose your **participant**. Names are shown only in the popup; files only contain P01–P04.
 2. **First time only:** click **Run test**, then type `.tie5Roanl` + Enter 10 times. This checks that the recorder works on your machine. After it passes, it becomes optional.
 3. Choose a **state** (or add a new label with **+ Add**) and your **alertness** (1–5).
+   Set **Text type** to **Free text** or **Fixed text** for the passage you are about to type. You can switch it while recording, so change it whenever the LLM gives you a different kind of text. The REC badge shows the current type.
 4. Click **Start recording**. A red **● REC** badge with a keystroke counter appears on the chat page.
 5. Chat in **English** for about 15 minutes, with at least 2,000 keystrokes. Type every message yourself: no paste, no autocomplete.
 6. Click **Stop recording**, then **View / export data**, then **Export**.
@@ -41,10 +42,12 @@ Only keys typed in the chat box of the ticked sites while recording is on. `<inp
 | input_type | what the press did: `insertText`, `deleteContentBackward`, `insertFromPaste`… |
 | text_len, caret_pos | length of the message and caret position at the event |
 | detail | marker name (`sample_start`, `sample_end:enter`, `sample_end:cleared`, `blur`, `focus`, `visibility_hidden`, `paste`) or `forced_release` on an `up` row synthesised when the window lost focus |
+| text_type | `free` or `fixed`, as set in the popup when the row was recorded (`fixed` for the collector test) |
 
 **meta.json** holds the participant, session, state label, alertness, language, start/end time, duration and keystroke count.
 
 ## Notes for analysis
+- Split free and fixed text with `text_type`. If it was switched mid-message, the sample's rows will have mixed values.
 - Hold = `up.timestamp_ms − down.timestamp_ms` for the same `press_id`. Latencies (DD/UD/UU/DU) come from consecutive `down` rows.
 - Drop or flag samples that contain a `paste` marker or `insertFromPaste`.
 - Use `blur`/`visibility_hidden` markers and long gaps to remove reading or thinking pauses.

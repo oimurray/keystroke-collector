@@ -9,9 +9,10 @@ function fill(select, options, value) {
 }
 
 function renderForm() {
-  const { participant = '', labels = KS.DEFAULT_LABELS, lastLabel, sites = KS.DEFAULT_SITES } = state;
+  const { participant = '', labels = KS.DEFAULT_LABELS, lastLabel, sites = KS.DEFAULT_SITES, textType = 'free' } = state;
   fill($('participant'), [['', 'Choose…'], ...KS.PARTICIPANTS.map(([id, name]) => [id, `${name} (${id})`])], participant);
   fill($('label'), labels.map(l => [l, l]), labels.includes(lastLabel) ? lastLabel : labels[0]);
+  fill($('textType'), KS.TEXT_TYPES, textType);
   $('sites').replaceChildren(...Object.entries(sites).map(([domain, on]) => {
     const l = document.createElement('label');
     const cb = Object.assign(document.createElement('input'), { type: 'checkbox', checked: on });
@@ -61,7 +62,7 @@ function renderStatus() {
 }
 
 async function load() {
-  state = await store.get(['participant', 'labels', 'lastLabel', 'sites', 'active', 'sessions', 'testPassed']);
+  state = await store.get(['participant', 'labels', 'lastLabel', 'sites', 'textType', 'active', 'sessions', 'testPassed']);
   renderForm();
   renderStatus();
 }
@@ -75,6 +76,7 @@ chrome.storage.onChanged.addListener(async (c, area) => {
 
 $('participant').onchange = e => store.set({ participant: e.target.value });
 $('label').onchange = e => store.set({ lastLabel: e.target.value });
+$('textType').onchange = e => store.set({ textType: e.target.value });
 
 $('addLabel').onclick = async () => {
   const l = $('newLabel').value.trim().toLowerCase();

@@ -1,9 +1,10 @@
 // Runs on the LLM sites. Records only while a session is active and this site is ticked in the popup.
-let active = null, sites = {}, session = null, keystrokes = 0, badge = null;
+let active = null, sites = {}, session = null, keystrokes = 0, badge = null, textType = 'free';
 
 const recorder = KS.createRecorder({
   findTarget,
   origin: () => session.start_epoch,
+  textType: () => textType,
   onRows: rows => {
     try {
       chrome.runtime.sendMessage({ type: 'rows', uid: session.uid, rows }).catch(() => {});
@@ -38,10 +39,11 @@ function renderBadge() {
       + 'border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.25)';
     document.documentElement.appendChild(badge);
   }
-  badge.textContent = `● REC  ${session.participant_id} ${session.session_id} · ${keystrokes} keys`;
+  badge.textContent = `● REC  ${session.participant_id} ${session.session_id} · ${textType.toUpperCase()} · ${keystrokes} keys`;
 }
 
-chrome.storage.local.get(['active', 'sites', 'sessions']).then(s => {
+chrome.storage.local.get(['active', 'sites', 'sessions', 'textType']).then(s => {
+  textType = s.textType ?? 'free';
   active = s.active ?? null;
   sites = s.sites ?? KS.DEFAULT_SITES;
   keystrokes = s.sessions?.[active?.uid]?.keystrokes ?? 0;
@@ -52,6 +54,7 @@ chrome.storage.onChanged.addListener((c, area) => {
   if (area !== 'local') return;
   if (c.active) active = c.active.newValue ?? null;
   if (c.sites) sites = c.sites.newValue ?? {};
+  if (c.textType) textType = c.textType.newValue ?? 'free';
   if (c.sessions && active) keystrokes = c.sessions.newValue?.[active.uid]?.keystrokes ?? 0;
   if (c.active || c.sites) update();
   else renderBadge();

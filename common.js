@@ -11,6 +11,9 @@ KS.PARTICIPANTS = [
 
 KS.DEFAULT_LABELS = ['normal', 'tired', 'impaired'];
 
+// Chosen in the popup and stamped on every row, so it can be switched mid-session.
+KS.TEXT_TYPES = [['free', 'Free text'], ['fixed', 'Fixed text']];
+
 KS.DEFAULT_SITES = {
   'chatgpt.com': true,
   'chat.openai.com': true,
@@ -23,7 +26,7 @@ KS.DEFAULT_SITES = {
 KS.COLUMNS = [
   'participant_id', 'session_id', 'sample_id', 'event', 'key_code', 'timestamp_ms', 'press_id', 'key',
   't_epoch_ms', 'shift', 'ctrl', 'alt', 'meta', 'capslock', 'location', 'repeat_count',
-  'input_type', 'text_len', 'caret_pos', 'detail',
+  'input_type', 'text_len', 'caret_pos', 'detail', 'text_type',
 ];
 
 KS.MODIFIERS = new Set(['Shift', 'Control', 'Alt', 'AltGraph', 'Meta', 'CapsLock']);

@@ -1,7 +1,7 @@
 // Keystroke recorder shared by the content script and the test page.
 // It emits raw rows only; all features are computed offline.
 (() => {
-  KS.createRecorder = ({ findTarget, onRows, origin }) => {
+  KS.createRecorder = ({ findTarget, onRows, origin, textType }) => {
     const tag = Math.random().toString(36).slice(2, 8); // keeps ids unique across tabs / page reloads
     const open = new Map(); // e.code -> press currently held down
     let buffer = [];
@@ -17,7 +17,7 @@
     const row = (event, t, fields) => ({
       sample_id: '', event, key_code: '', timestamp_ms: +(t - origin()).toFixed(3), press_id: '', key: '',
       t_epoch_ms: Math.round(t), shift: '', ctrl: '', alt: '', meta: '', capslock: '', location: '',
-      repeat_count: '', input_type: '', text_len: '', caret_pos: '', detail: '',
+      repeat_count: '', input_type: '', text_len: '', caret_pos: '', detail: '', text_type: textType?.() ?? '',
       ...fields,
     });
 

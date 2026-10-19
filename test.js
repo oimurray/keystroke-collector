@@ -9,6 +9,7 @@ let participant = null;
 const rec = KS.createRecorder({
   findTarget: t => (t === box ? box : null),
   origin: () => t0,
+  textType: () => 'fixed',
   onRows: r => rows.push(...r),
 });
 
