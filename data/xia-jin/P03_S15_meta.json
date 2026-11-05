@@ -1,0 +1,11 @@
+{
+  "participant_id": "P03",
+  "session_id": "S15",
+  "state_label": "tired",
+  "alertness": 2,
+  "language": "en",
+  "start": "2026-11-02T09:44:03.391Z",
+  "end": "2026-11-02T09:48:36.584Z",
+  "duration_s": 273,
+  "keystrokes": 906
+}
