@@ -10,16 +10,38 @@ Chrome extension (Manifest V3) that records key press/release timings while you 
 Supported sites (tick or untick them in the popup): chatgpt.com, chat.openai.com, claude.ai, gemini.google.com, chat.mistral.ai.
 
 ## Recording a session
-1. Open the popup and choose your **participant**. Names are shown only in the popup; files only contain P01–P04.
+1. Open the popup and choose your **participant**. Session files contain only P01–P04; the shared parent folder uses your Git username.
 2. **First time only:** click **Run test**, then type `.tie5Roanl` + Enter 10 times. This checks that the recorder works on your machine. After it passes, it becomes optional.
 3. Choose a **state** (or add a new label with **+ Add**) and your **alertness** (1–5).
    Set **Text type** to **Free text** or **Fixed text** for the passage you are about to type. You can switch it while recording, so change it whenever the LLM gives you a different kind of text. The REC badge shows the current type.
 4. Click **Start recording**. A red **● REC** badge with a keystroke counter appears on the chat page.
 5. Chat in **English** for about 15 minutes, with at least 2,000 keystrokes. Type every message yourself: no paste, no autocomplete.
-6. Click **Stop recording**, then **View / export data**, then **Export**.
-7. Upload `Pxx_Sn.csv` and `Pxx_Sn_meta.json` to the shared folder. Delete the session from the extension once it has been uploaded.
+6. Click **Stop recording**, then **View / export data**, then **Export**. Keep each CSV beside its matching `_meta.json` in your Downloads folder.
+7. In this repository, run `npm run share`. This copies the exported sessions into `data/<username>/`, commits only that folder, rebases on the remote branch, and pushes the commit. Delete the session from the extension only after the push succeeds.
 
 Session numbers (S1, S2, …) count up automatically for each participant on each machine.
+
+## Sharing data through Git
+
+The share command requires **Node.js 18 or newer**, Git, and push access to the configured remote. No npm packages need to be installed. It uses `~/Downloads` and your Git `user.name` by default, turning spaces and punctuation into hyphens in the folder name. For example, `Xia JIN` becomes `data/xia-jin/`.
+
+```sh
+# Preview the files and destination without changing anything
+npm run share -- --dry-run
+
+# Share exports from the default Downloads folder
+npm run share
+
+# Use another export folder or username
+npm run share -- --source "/path/to/exports" --user "Xia JIN"
+
+# Organise and commit locally, without pulling or pushing
+npm run share -- --no-push
+```
+
+Only files named exactly `Pxx_Sn.csv` and `Pxx_Sn_meta.json` are collected, and both files must be present. Existing identical files are skipped; the command refuses to overwrite a same-named file with different content. Other modified or staged files in the repository are not included in the data commit. The automatic pull uses `--rebase --autostash`; if Git reports a conflict, the data commit remains local so you can resolve it and push manually.
+
+**Warning:** the CSV contains typed text. Running the push command publishes it to the Git remote and its parent folder reveals the configured username. Use only harmless study text and make sure all participants consent to the repository's visibility.
 
 ## What is recorded
 Only keys typed in the chat box of the ticked sites while recording is on. `<input>` fields (including passwords) are never recorded.
@@ -55,4 +77,4 @@ Only keys typed in the chat box of the ticked sites while recording is on. `<inp
 - Language is English (the brief asks for French; we note this in the report).
 
 ## Privacy
-Data stays in `chrome.storage.local` in this browser until you export it. The `key` column contains what you typed, so keep conversations to harmless small talk, and turn recording off for anything else.
+Data stays in `chrome.storage.local` in this browser until you export it. The `key` column contains what you typed, so keep conversations to harmless small talk, and turn recording off for anything else. Exported files remain local until you explicitly run the Git share command; pushed data is visible to everyone who can access the remote repository.

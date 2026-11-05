@@ -1,4 +1,6 @@
 .DS_Store
-# Keystroke data contains typed text: never commit it
+# Keep loose exports local; only per-user folders produced by `npm run share` are committed.
 *.csv
 *_meta.json
+!data/**/*.csv
+!data/**/*_meta.json
