@@ -1,0 +1,11 @@
+{
+  "participant_id": "P04",
+  "session_id": "S7",
+  "state_label": "normal",
+  "alertness": 5,
+  "language": "en",
+  "start": "2026-10-19T12:50:29.038Z",
+  "end": "2026-10-19T12:54:13.946Z",
+  "duration_s": 225,
+  "keystrokes": 892
+}
