@@ -1,0 +1,11 @@
+{
+  "participant_id": "P01",
+  "session_id": "S31",
+  "state_label": "impaired",
+  "alertness": 2,
+  "language": "en",
+  "start": "2026-10-22T21:27:33.223Z",
+  "end": "2026-10-22T21:27:56.604Z",
+  "duration_s": 23,
+  "keystrokes": 24
+}
