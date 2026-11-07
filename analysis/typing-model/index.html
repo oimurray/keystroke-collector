@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typing baseline</title>
+<style>
+:root{font:16px/1.6 system-ui,sans-serif;color:#e7edf6;background:#101722;color-scheme:dark}*{box-sizing:border-box}body{margin:0}main{max-width:960px;margin:auto;padding:48px 24px}.eyebrow{color:#8dbbb0;letter-spacing:.14em;font-size:.76rem;text-transform:uppercase}h1{font-size:clamp(2.2rem,6vw,3.5rem);line-height:1.1;margin:15px 0}h2{font-size:1.25rem}p{max-width:720px;color:#b8c4d5}.panel{border:1px solid #334253;background:#182332;border-radius:16px;padding:24px;margin:24px 0}.profiles{display:flex;gap:8px;flex-wrap:wrap}.chip{font-size:.8rem;border:1px solid #49606c;border-radius:8px;padding:7px 11px}input{display:block;padding:16px 0;max-width:100%}button{background:#a6e3cf;color:#13291f;border:0;border-radius:8px;padding:12px 24px;font:600 1rem system-ui;cursor:pointer}button:disabled{opacity:.5;cursor:wait}.note{font-size:.88rem;color:#c4b58e}.error{color:#ffb6ae}.good{color:#a6e3cf}.unusual{color:#f2c276}table{width:100%;border-collapse:collapse;font-size:.9rem}td,th{text-align:left;padding:10px 6px;border-bottom:1px solid #334253}th{color:#aebcce;font-weight:500}.scroll{overflow-x:auto}details{margin:18px 0}summary{cursor:pointer}#result:focus{outline:none}a{color:#a6e3cf}small{color:#aebcce}.metrics{display:flex;gap:35px;flex-wrap:wrap}.metric strong{font-size:1.65rem;display:block}.metric span{font-size:.8rem;color:#aebcce}
+</style>
+<main>
+<div class="eyebrow">Keystroke dynamics · Research prototype</div>
+<h1>Your typing, compared<br>with your baseline.</h1>
+<p>Choose a recording from your keystroke collector. This tool compares its rhythm with your own normal recordings and highlights changes.</p>
+<div class="panel"><label for="model"><strong>Choose a model</strong></label><p><select id="model" disabled style="font:inherit;padding:10px;border-radius:8px;max-width:100%"><option>Loading models…</option></select></p><p id="method-description"></p><h2>Available baselines</h2><div id="profiles" class="profiles">Loading…</div><p class="note">An unusual result does not establish tiredness or alcohol impairment. A result within baseline does not establish fitness to drive or perform other tasks.</p></div>
+<form id="upload" class="panel"><label for="csv"><strong>Choose an exported session CSV</strong></label><input id="csv" type="file" accept=".csv,text/csv" required><small>Participant and text type are read from the file. Uploads are processed locally in memory and are not saved.</small><p><button id="submit" type="submit">Compare with baseline</button></p></form>
+<div id="result" tabindex="-1" aria-live="polite"></div>
+<p><small>Scores measure distance from a personal baseline. They are not percentages or probabilities. Separate baselines are used for fixed and free text.</small></p>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e};
+const validation={same_day_provisional:'Provisional · same-day calibration',no_baseline_test_day:'No independent baseline test day',independent_days:'Separate training, calibration and test days'};
+let availableModels=[];
+function showModel(){const model=availableModels.find(m=>m.id===$('#model').value);if(!model)return;const p=$('#profiles');p.replaceChildren();for(const x of model.profiles)p.append(el('div',`${x.participant} · ${x.text_type} · ${validation[x.validation]||x.validation}`,'chip'));$('#method-description').textContent=model.id==='knn'?`Compares each ${model.window_size}-keypress window with its ${model.k} closest normal examples. A larger average distance means more unusual typing.`:`Compares each ${model.window_size}-keypress window with your typical normal rhythm.`;$('#result').replaceChildren();}
+fetch('/api/profiles').then(r=>{if(!r.ok)throw Error('Could not load models.');return r.json()}).then(data=>{availableModels=data.models||[{id:'baseline',label:'Personal baseline',window_size:data.window_size,profiles:data.profiles}];const select=$('#model');select.replaceChildren();for(const model of availableModels){const option=el('option',model.label+(model.k?` (k=${model.k})`:''));option.value=model.id;select.append(option)}select.value=data.default_model||availableModels[0].id;select.disabled=false;showModel();}).catch(()=>$('#profiles').textContent='Could not load the models. Restart the local server.');
+$('#model').addEventListener('change',showModel);
+$('#upload').addEventListener('submit',async event=>{
+ event.preventDefault(); const button=$('#submit'),target=$('#result'),select=$('#model'),selected=select.value;button.disabled=true;select.disabled=true;button.textContent='Comparing…';target.replaceChildren();
+ try{
+  const file=$('#csv').files[0];if(!file)throw Error('Choose a CSV first.');if(file.size>11*1024*1024)throw Error('Choose a CSV smaller than 11 MB.');
+  const response=await fetch('/api/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({csv:await file.text(),model:selected})});const data=await response.json();if(!response.ok)throw Error(data.error||'Could not score this recording.');
+  target.append(el('h2',`${data.participant} / ${data.session}`));
+  target.append(el('p',data.method==='knn'?'Model: kNN neighbours. Compare this score with its own threshold; scores from different models are not interchangeable.':'Model: Personal baseline.'));
+  target.append(el('p',`${data.quality.usable_keypresses||0} usable keypresses; ${data.quality.window_keypresses||0} used in complete ${data.window_size}-keypress windows. Interruptions and incomplete windows can reduce coverage.`));
+  const labels={unusual_typing:'Unusual typing',within_baseline:'Within baseline',insufficient_data:'More typing needed',no_matching_baseline:'No matching baseline'};
+  for(const [type,r] of Object.entries(data.results)){
+   const panel=el('section',undefined,'panel');panel.append(el('small',`${type} text`),el('h2',labels[r.status]||r.status,r.status==='unusual_typing'?'unusual':'good'));
+   if(r.message)panel.append(el('p',r.message));
+   if(r.validation)panel.append(el('p',validation[r.validation]||r.validation,'note'));
+   if(r.warning)panel.append(el('p',r.warning,'note'));
+   if(r.median_score!=null){const metrics=el('div',undefined,'metrics');for(const [value,label] of [[r.median_score.toFixed(2),'Median distance score'],[r.threshold.toFixed(2),'Alert threshold'],[`${r.flagged_windows} / ${r.window_count}`,'Unusual windows']]){const m=el('div',undefined,'metric');m.append(el('strong',value),el('span',label));metrics.append(m)}panel.append(metrics);
+    panel.append(el('p','The session result compares the median window score with the alert threshold. Individual windows may differ.'));
+    const details=el('details'),scroll=el('div',undefined,'scroll'),table=el('table'),head=el('tr');details.append(el('summary','Inspect individual windows'));for(const h of ['Window','Score','Result','Largest change'])head.append(el('th',h));table.append(head);
+    r.windows.forEach((w,i)=>{const row=el('tr');for(const v of [i+1,w.score.toFixed(2),w.unusual?'Unusual':'Within baseline',w.top_changes[0]?.feature.replaceAll('_',' ')||''])row.append(el('td',String(v)));table.append(row)});scroll.append(table);details.append(scroll);panel.append(details);
+   }else if(r.status==='insufficient_data')panel.append(el('p',`Record enough uninterrupted typing for at least one ${data.window_size}-keypress window with a known text type.`));
+   target.append(panel);
+  }
+  const details=el('details');details.append(el('summary','Recording quality'));for(const [k,v] of Object.entries(data.quality))details.append(el('div',`${k.replaceAll('_',' ')}: ${v}`));target.append(details);
+ }catch(error){target.append(el('p',error.message,'error'));}finally{button.disabled=false;select.disabled=availableModels.length===0;button.textContent='Compare with baseline';target.focus();}
+});
+</script>
+</html>
