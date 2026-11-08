@@ -216,13 +216,18 @@ def fit_profile(windows, method="baseline", k=5):
     return profile
 
 
+def nearest_neighbors(profile, f):
+    """Return reference indices and full-feature distances in score order."""
+    distances = [(math.sqrt(st.mean(((f[n] - example[n]) / profile["scale"][n]) ** 2
+                                    for n in FEATURES)), index)
+                 for index, example in enumerate(profile["training_examples"])]
+    return sorted(distances, key=lambda item: item[0])[:profile["k"]]
+
+
 def score(profile, f):
     if profile.get("method", "baseline") == "knn":
-        distances = []
-        for example in profile["training_examples"]:
-            distance = math.sqrt(st.mean(((f[n] - example[n]) / profile["scale"][n]) ** 2 for n in FEATURES))
-            distances.append((distance, example))
-        nearest = sorted(distances, key=lambda item: item[0])[:profile["k"]]
+        nearest = [(distance, profile["training_examples"][index])
+                   for distance, index in nearest_neighbors(profile, f)]
         value = st.mean(distance for distance, _ in nearest)
         # Explanations compare against the same neighbours used for the score.
         contributions = {n: math.sqrt(st.mean(((f[n] - ex[n]) / profile["scale"][n]) ** 2
@@ -263,9 +268,16 @@ def summarize_predictions(profile, windows):
     predictions = []
     for w in windows:
         value, reasons = score(profile, w["features"])
+        neighbors = nearest_neighbors(profile, w["features"]) if profile.get("method") == "knn" else []
+        reference = {n: st.mean(profile["training_examples"][i][n] for _, i in neighbors)
+                     if neighbors else profile["center"][n] for n in FEATURES}
         predictions.append({"start_ms": w["start_ms"], "end_ms": w["end_ms"],
                             "score": round(value, 4), "unusual": value > profile["threshold"],
-                            "top_changes": reasons})
+                            "top_changes": reasons,
+                            "feature_comparison": [{"feature": n, "observed": round(w["features"][n], 3),
+                                                    "baseline": round(reference[n], 3)} for n in FEATURES],
+                            "neighbors": [{"reference_window": i + 1, "distance": round(d, 4)}
+                                          for d, i in neighbors]})
     values = [p["score"] for p in predictions]
     return {"status": ("unusual_typing" if st.median(values) > profile["threshold"] else "within_baseline") if values else "insufficient_data",
             "median_score": round(st.median(values), 4) if values else None,
@@ -360,6 +372,9 @@ def predict(model, text):
             continue
         result = summarize_predictions(profile, [w for w in windows if w["text_type"] == text_type])
         result["validation"] = profile["validation"]
+        result["profile"] = {name: profile.get(name) for name in
+                             ("training_windows", "calibration_windows", "k", "training_days",
+                              "calibration_days", "baseline_test_days")}
         result["reference_recording"] = (fingerprint(text) in profile["reference_hashes"]
                                          or [pid, sid] in profile["reference_ids"])
         if result["reference_recording"]:

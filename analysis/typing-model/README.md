@@ -30,6 +30,18 @@ probabilities. They are not calibrated measures of alcohol level or fatigue.
 Ordinary distraction, keyboard changes, and other factors can change typing.
 A result cannot establish fitness to drive or perform other safety-critical tasks.
 
+The results dashboard plots each window against the model's threshold. Use
+**Inspect a window** to see its largest contributors and all eleven feature
+values alongside their baseline references. For kNN, the dashboard also shows
+the actual selected reference-window distances; their mean is that window's
+score. The kNN diagram is a conceptual illustration, not a projection of the
+uploaded recording. Expand the validation and recording-quality sections for
+baseline provenance and extraction counts, or use **Download result JSON**
+to save the complete numerical output locally.
+
+HTML/CSS changes appear after refreshing the page. Restart the server after
+changing Python code or trained models.
+
 Baseline recordings used for training/calibration are explicitly marked when
 uploaded again. Their scores are not independent test results. The UI does not
 require the condition metadata for prediction, so the true condition is not a

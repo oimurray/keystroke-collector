@@ -43,6 +43,21 @@ class ModelTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             fit_profile(modes, method="knn", k=5)
 
+    def test_window_explanations_match_selected_neighbors(self):
+        from keystroke_model import FEATURES, summarize_predictions
+        windows, _ = extract(read_csv(recording()), 100)
+        profile = fit_profile(windows, method="knn", k=2)
+        profile["threshold"] = 1
+        shifted, _ = extract(read_csv(recording(hold=200, gap=350)), 100)
+        result = summarize_predictions(profile, shifted)
+        window = result["windows"][0]
+        self.assertEqual(len(window["neighbors"]), 2)
+        self.assertAlmostEqual(sum(n["distance"] for n in window["neighbors"]) / 2,
+                               window["score"], places=4)
+        self.assertEqual({f["feature"] for f in window["feature_comparison"]}, set(FEATURES))
+        hold = next(f for f in window["feature_comparison"] if f["feature"] == "hold_median_ms")
+        self.assertEqual((hold["observed"], hold["baseline"]), (200, 80))
+
     def test_knn_fit_never_uses_calibration_examples(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
