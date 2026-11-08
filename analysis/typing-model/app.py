@@ -4,12 +4,21 @@ import json
 from pathlib import Path
 
 from keystroke_model import predict
+from identity_model import predict_identity, public_description, replay_identity
 
 
-def serve(model, port=8765, additional_models=None):
+def serve(model=None, port=8765, additional_models=None, identity_model=None):
     page_path = Path(__file__).with_name("index.html")
-    default_method = model.get("method", "baseline")
-    models = {default_method: model, **(additional_models or {})}
+    identity_page = page_path.with_name("identity.html")
+    recorder_path = Path(__file__).resolve().parents[2] / "recorder.js"
+    if identity_model is None:
+        identity_path = page_path.parent / "models" / "identity.json"
+        if identity_path.exists():
+            identity_model = json.loads(identity_path.read_text(encoding="utf-8"))
+    if model is None and identity_model is None:
+        raise ValueError("Train an identity or baseline model first.")
+    default_method = model.get("method", "baseline") if model else None
+    models = ({default_method: model} if model else {}) | (additional_models or {})
 
     def describe_models():
         return [{"id": method, "label": "kNN neighbours" if method == "knn" else "Personal baseline",
@@ -42,26 +51,44 @@ def serve(model, port=8765, additional_models=None):
             if not self.local_request():
                 return self.respond(403, {"error": "Local requests only."})
             if self.path == "/":
-                return self.respond(200, page_path.read_bytes(), "text/html")
+                return self.respond(200, (page_path if model else identity_page).read_bytes(), "text/html")
+            if self.path == "/identity":
+                return self.respond(200, identity_page.read_bytes(), "text/html")
+            if self.path == "/identity/recorder.js" and recorder_path.exists():
+                return self.respond(200, recorder_path.read_bytes(), "text/javascript")
+            if self.path == "/api/identity/profiles":
+                if identity_model is None:
+                    return self.respond(503, {"error": "Run identity-demo.cmd to train member profiles and start the demo."})
+                return self.respond(200, public_description(identity_model, recorder_path.exists()))
             if self.path == "/api/profiles":
                 return self.respond(200, {"default_model": default_method, "models": describe_models(),
-                    "window_size": model["window_size"], "profiles": [
+                    "window_size": model["window_size"] if model else None, "profiles": [
                     {"participant": p["participant"], "text_type": p["text_type"],
                      "validation": p["validation"], "training_windows": p["training_windows"]}
-                    for p in model["profiles"].values()]})
+                    for p in (model["profiles"].values() if model else [])]})
             self.respond(404, {"error": "Not found."})
 
         def do_POST(self):
             if not self.local_request():
                 return self.respond(403, {"error": "Local requests only."})
-            if self.path != "/api/predict":
+            if self.path not in {"/api/predict", "/api/identity/predict", "/api/identity/replay"}:
                 return self.respond(404, {"error": "Not found."})
             try:
                 size = int(self.headers.get("Content-Length", "0"))
                 if not 0 < size <= 12 * 1024 * 1024:
                     return self.respond(413, {"error": "Choose a CSV smaller than 12 MB."})
                 data = json.loads(self.rfile.read(size))
-                if not isinstance(data, dict) or not isinstance(data.get("csv"), str):
+                if not isinstance(data, dict):
+                    raise ValueError("Request must be a JSON object.")
+                if self.path.startswith("/api/identity/"):
+                    if identity_model is None:
+                        raise ValueError("Identity models are unavailable. Run identity-demo.cmd.")
+                    if self.path == "/api/identity/replay":
+                        return self.respond(200, replay_identity(identity_model, data.get("replay_id"), data.get("expected_participant")))
+                    if not isinstance(data.get("csv"), str):
+                        raise ValueError("Request must include CSV text.")
+                    return self.respond(200, predict_identity(identity_model, data["csv"], data.get("expected_participant")))
+                if not isinstance(data.get("csv"), str):
                     raise ValueError("Request must include CSV text.")
                 method = data.get("model", default_method)
                 if method not in models:
@@ -71,7 +98,7 @@ def serve(model, port=8765, additional_models=None):
                 self.respond(400, {"error": str(e)})
 
     with ThreadingHTTPServer(("127.0.0.1", port), Handler) as server:
-        print(f"Typing baseline is ready: http://127.0.0.1:{port}", flush=True)
+        print(f"Typing Lab is ready: http://127.0.0.1:{port}", flush=True)
         print("Open that address in your browser. Ctrl+C stops the server.", flush=True)
         try:
             server.serve_forever()

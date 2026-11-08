@@ -167,7 +167,7 @@ def fingerprint(text):
 def load_sessions(root, size):
     sessions, skipped, seen = [], [], set()
     for path in sorted(Path(root).rglob("*_meta.json")):
-        if "older_versions" in path.parts or ".git" in path.parts:
+        if {"older_versions", ".git", ".venv", ".venv-comparison", "venv", "__pycache__"}.intersection(path.parts):
             continue
         csv_path = path.with_name(path.name.replace("_meta.json", ".csv"))
         try:
@@ -193,7 +193,7 @@ def load_sessions(root, size):
         except (OSError, ValueError, KeyError, TypeError) as e:
             skipped.append({"file": str(path), "reason": str(e)})
     for path in sorted(Path(root).rglob("*.csv")):
-        if "older_versions" in path.parts or ".git" in path.parts:
+        if {"older_versions", ".git", ".venv", ".venv-comparison", "venv", "__pycache__"}.intersection(path.parts):
             continue
         if not path.with_name(path.stem + "_meta.json").exists():
             skipped.append({"file": str(path), "reason": "missing matching metadata; condition label unknown"})
