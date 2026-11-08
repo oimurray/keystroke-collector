@@ -2,6 +2,47 @@
 
 Chrome extension (Manifest V3) that records key press/release timings while you chat with an LLM, for our keystroke-dynamics project (INSA Lyon, Data Mining).
 
+## Current project status - 8 November 2026
+
+The active demo is **fixed-text expected-author verification**, using a separate
+**kNN profile per member (k=5), 200 usable keypresses per window, and eight timing
+features**. Select an expected author and type live, upload a CSV, or replay a
+clearly labelled recorded example. The model flags a change from that author's
+baseline; it does not identify the new author or diagnose impairment.
+
+With Python 3.10+ installed, from the repository root:
+
+```powershell
+cd analysis/typing-model
+.\identity-demo.cmd
+```
+
+Open **http://127.0.0.1:8768**. The launcher trains from the available collector
+exports and writes a fresh per-member evaluation. Generated models and detailed
+reports are local and ignored by Git; teammates regenerate them from their clone's
+data. Use the extension for study collection; the live demo does not save recordings.
+
+| Development stage | What was tested / decided |
+| --- | --- |
+| Initial prototype | Personal baseline and kNN; local CSV results dashboard. |
+| 8 Nov: model comparison | Baseline, kNN, LOF and Isolation Forest on shared splits; no independent normal test days, so no accuracy winner established. |
+| 8 Nov: window sizes | 100/200/400 keypresses with fixed recording assignments; retained 200 as a working preset, not a proven optimum. |
+| 8 Nov: P04 feature/alignment pilot | Timing-only vs backspaces and aligned passage/error features; backspaces did not change paired raw-window decisions; alignment was not established as an improvement. |
+| 8 Nov: member demo | Profiles for P01-P04, live/upload/replay modes, explicit expected author and separate latest-window/session scores. |
+
+The checked-in [experiment log](analysis/typing-model/EXPERIMENT_LOG.md) contains
+the actual counts, protocol changes, run IDs, limitations and reproduction commands.
+Read it before interpreting or extending the analysis. The
+[analysis README](analysis/typing-model/README.md) documents the scripts and UI;
+[team setup notes](analysis/typing-model/SHARE.md) explain what to pull and run.
+
+**Current evidence is exploratory:** all normal test sets lack independent test
+days; repeated other-author recordings are not independent live takeovers.
+Same-author tired/impaired recordings can also trigger alerts. The next priority
+is repeated normal typing on new days per member, with untouched future days
+reserved for final evaluation. The current deliverable is a 20-minute
+presentation/demo followed by 10 minutes of questions; no slide deck is included.
+
 ## Install
 1. Open `chrome://extensions` and turn on **Developer mode** (top right).
 2. Click **Load unpacked** and select this folder.

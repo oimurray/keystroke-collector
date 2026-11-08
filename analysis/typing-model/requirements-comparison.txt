@@ -1,0 +1,2 @@
+# Optional; the collector, baseline/kNN website and existing CLI do not require this.
+scikit-learn>=1.5,<2.0
