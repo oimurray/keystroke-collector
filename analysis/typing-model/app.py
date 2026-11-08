@@ -7,7 +7,7 @@ from keystroke_model import predict
 
 
 def serve(model, port=8765, additional_models=None):
-    page = Path(__file__).with_name("index.html").read_bytes()
+    page_path = Path(__file__).with_name("index.html")
     default_method = model.get("method", "baseline")
     models = {default_method: model, **(additional_models or {})}
 
@@ -42,7 +42,7 @@ def serve(model, port=8765, additional_models=None):
             if not self.local_request():
                 return self.respond(403, {"error": "Local requests only."})
             if self.path == "/":
-                return self.respond(200, page, "text/html")
+                return self.respond(200, page_path.read_bytes(), "text/html")
             if self.path == "/api/profiles":
                 return self.respond(200, {"default_model": default_method, "models": describe_models(),
                     "window_size": model["window_size"], "profiles": [
