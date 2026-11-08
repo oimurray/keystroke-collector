@@ -4,7 +4,9 @@
   "private": true,
   "description": "Records key press/release timings in LLM chat boxes for a keystroke-dynamics study.",
   "scripts": {
-    "share": "node scripts/share-data.js"
+    "share": "node scripts/share-data.js",
+    "check:extension": "node --test scripts/test-extension.js",
+    "extension:sync": "node scripts/sync-extension-manifest.js"
   },
   "engines": {
     "node": ">=18"

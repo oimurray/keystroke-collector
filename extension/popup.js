@@ -36,7 +36,7 @@ function renderStatus() {
     const b = Object.assign(document.createElement('button'), { textContent: passed ? 'Run again' : 'Run test' });
     b.style.marginTop = '8px';
     b.disabled = !!active;
-    b.onclick = () => chrome.tabs.create({ url: 'test.html' });
+    b.onclick = () => chrome.tabs.create({ url: new URL('test.html', location.href).href });
     $('test').append(document.createElement('br'), b);
   }
 
@@ -100,6 +100,6 @@ $('toggle').onclick = async () => {
   if (!res?.ok) $('status').textContent = `Could not start: ${res?.error}`;
 };
 
-$('data').onclick = () => chrome.tabs.create({ url: 'data.html' });
+$('data').onclick = () => chrome.tabs.create({ url: new URL('data.html', location.href).href });
 
 load();

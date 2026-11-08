@@ -69,6 +69,12 @@ to save the complete numerical output locally.
 HTML/CSS changes appear after refreshing the page. Restart the server after
 changing Python code or trained models.
 
+The collector source is under the repository's `extension/` folder. The author
+demo serves its live recorder from `extension/recorder.js`; restart an existing
+demo server after pulling the folder reorganisation. P02 exports now live under
+`data/elias/`; the archived P02 pair stays under `older_versions` and is excluded
+from training. The data-root launchers continue to point at the repository root.
+
 Baseline recordings used for training/calibration are explicitly marked when
 uploaded again. Their scores are not independent test results. The UI does not
 require the condition metadata for prediction, so the true condition is not a

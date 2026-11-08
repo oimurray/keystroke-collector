@@ -44,11 +44,51 @@ reserved for final evaluation. The current deliverable is a 20-minute
 presentation/demo followed by 10 minutes of questions; no slide deck is included.
 
 ## Install
+
+Extension code is in **`extension/`**. The root `manifest.json` is a compatibility
+entry point for existing unpacked installs; it references the same files inside
+`extension/`. Keeping the existing root-loaded entry preserves its load path and
+local browser storage. After pulling this reorganisation, click **Reload** on
+that entry in `chrome://extensions`, then reload already-open LLM tabs. Do not
+remove/reinstall it just to apply the update.
+
+For a new install:
+
 1. Open `chrome://extensions` and turn on **Developer mode** (top right).
-2. Click **Load unpacked** and select this folder.
+2. Click **Load unpacked** and select the **`extension/` subfolder**.
 3. Pin the extension, then **reload any LLM tabs that were already open**.
 
 Supported sites (tick or untick them in the popup): chatgpt.com, chat.openai.com, claude.ai, gemini.google.com, chat.mistral.ai.
+
+See [extension setup notes](extension/README.md) for both load layouts. A new
+install in a different folder does not automatically inherit another install's
+stored recordings.
+
+## Repository layout
+
+```text
+extension/                 Chrome extension source and authoritative manifest
+data/elias/                P02 current CSV/metadata pairs
+data/elias/older_versions/ Archived P02 pair; excluded from model training
+data/blaise-newman/        P04 exports
+data/oimurray/             P01 exports
+data/xia-jin/              P03 exports
+data/archive/collected_data/ Remaining legacy archive; older_versions stays excluded
+analysis/typing-model/     Models, experiments, demo and synthetic tests
+scripts/                   Sharing and extension verification tools
+manifest.json              Generated compatibility entry point for root-loaded installs
+```
+
+On 8 November, 20 current P02 pairs and one archived pair were relocated without
+changing their contents. The remaining legacy `collected_data/` directory was
+archived under `data/archive/`. Participant IDs and recording metadata remain
+unchanged. Existing generated reports retain their historical source paths;
+regenerated reports use the new layout.
+
+From the repository root, run `npm run check:extension` to check both extension
+load layouts, resource paths, popup navigation and worker storage behaviour. If
+you edit `extension/manifest.json`, run `npm run extension:sync` to update the
+root compatibility manifest, then rerun the checks.
 
 ## Recording a session
 1. Open the popup and choose your **participant**. Session files contain only P01–P04; the shared parent folder uses your Git username.
@@ -75,6 +115,9 @@ npm run share
 
 # Use another export folder or username
 npm run share -- --source "/path/to/exports" --user "Xia JIN"
+
+# Put P02 exports in the established Elias folder
+npm run share -- --user elias
 
 # Organise and commit locally, without pulling or pushing
 npm run share -- --no-push

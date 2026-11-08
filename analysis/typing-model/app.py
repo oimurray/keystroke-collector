@@ -10,7 +10,7 @@ from identity_model import predict_identity, public_description, replay_identity
 def serve(model=None, port=8765, additional_models=None, identity_model=None):
     page_path = Path(__file__).with_name("index.html")
     identity_page = page_path.with_name("identity.html")
-    recorder_path = Path(__file__).resolve().parents[2] / "recorder.js"
+    recorder_path = Path(__file__).resolve().parents[2] / "extension" / "recorder.js"
     if identity_model is None:
         identity_path = page_path.parent / "models" / "identity.json"
         if identity_path.exists():

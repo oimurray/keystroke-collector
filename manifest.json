@@ -3,9 +3,17 @@
   "name": "Keystroke Collector",
   "version": "1.1.0",
   "description": "Records key press/release timings in LLM chat boxes for a keystroke-dynamics study.",
-  "permissions": ["storage", "unlimitedStorage"],
-  "background": { "service_worker": "background.js" },
-  "action": { "default_popup": "popup.html", "default_title": "Keystroke Collector" },
+  "permissions": [
+    "storage",
+    "unlimitedStorage"
+  ],
+  "background": {
+    "service_worker": "extension/background.js"
+  },
+  "action": {
+    "default_popup": "extension/popup.html",
+    "default_title": "Keystroke Collector"
+  },
   "content_scripts": [
     {
       "matches": [
@@ -15,7 +23,11 @@
         "https://gemini.google.com/*",
         "https://chat.mistral.ai/*"
       ],
-      "js": ["common.js", "recorder.js", "content.js"],
+      "js": [
+        "extension/common.js",
+        "extension/recorder.js",
+        "extension/content.js"
+      ],
       "run_at": "document_idle"
     }
   ]

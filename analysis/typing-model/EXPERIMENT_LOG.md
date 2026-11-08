@@ -187,6 +187,15 @@ status may alert before the cumulative session median; neither proves impairment
 
 ## Reproduce after pulling
 
+Repository layout update on 8 November: P02's 20 current recording pairs moved
+from `collected_data/` to `data/elias/`; its archived pair moved to
+`data/elias/older_versions/`. Remaining legacy files moved to
+`data/archive/collected_data/`, retaining the `older_versions` exclusion.
+Collector code moved into `extension/`; the demo's recorder asset path and the
+training launcher's discovery path were updated. Byte hashes and the complete
+extracted recording inventory were checked before/after. Existing run folders
+are historical snapshots and their stored source paths are not rewritten.
+
 Run from `analysis/typing-model`, with Python 3.10+ and matching collector CSV /
 `_meta.json` pairs available under the chosen data root. Source paths are read
 only. The current clone's recordings, labels and timestamps determine results.
