@@ -83,7 +83,7 @@ def features(presses):
     }
 
 
-def extract(rows, window_size=200):
+def extract(rows, window_size=200, *, live=False):
     if window_size < 50:
         raise ValueError("Window size must be at least 50.")
     quality = collections.Counter()
@@ -92,18 +92,19 @@ def extract(rows, window_size=200):
                    if r.get("detail") == "paste" or r.get("input_type") == "insertFromPaste"}
     ups = collections.defaultdict(list)
     down_counts = collections.Counter(r["press_id"] for r in rows if r["event"] == "down")
+    quality["raw_keypresses"] = sum(down_counts.values())
     for r in rows:
         if r["event"] == "up":
             ups[r["press_id"]].append(r)
     presses = []
     segment = 0
     previous_type = None
-    for r in rows:
+    last_break = max((i for i, r in enumerate(rows) if r.get("detail") in BREAKS), default=-1) if live else -1
+    for i, r in enumerate(rows):
         if r.get("detail") in BREAKS:
             segment += 1
         if r["event"] != "down":
             continue
-        quality["raw_keypresses"] += 1
         text_type = r["text_type"]
         if text_type != previous_type:
             segment += 1
@@ -119,6 +120,11 @@ def extract(rows, window_size=200):
         if r["key"] in MODIFIERS:
             continue
         releases = ups[r["press_id"]]
+        if (live and not releases and i > last_break and r["sample_id"] and r["press_id"]
+                and down_counts[r["press_id"]] == 1 and rows[-1]["timestamp_ms"] - r["timestamp_ms"] <= 5000):
+            # A key still held at the end of the live snapshot may yet be usable.
+            # Wait for it before assigning this or later presses to a window.
+            break
         if not r["sample_id"] or not r["press_id"] or len(releases) != 1 or down_counts[r["press_id"]] != 1:
             quality["unpaired_or_duplicate_presses"] += 1
             segment += 1
@@ -154,6 +160,7 @@ def extract(rows, window_size=200):
                 continue
             windows.append({"text_type": text_type, "start_ms": chunk[0]["t"],
                             "end_ms": chunk[-1]["up"], "features": f})
+    quality["next_window_keypresses"] = len(groups.get((segment, previous_type), ())) % window_size
     quality["window_keypresses"] = len(windows) * window_size
     quality["unused_usable_keypresses"] = len(presses) - quality["window_keypresses"]
     return windows, dict(quality)

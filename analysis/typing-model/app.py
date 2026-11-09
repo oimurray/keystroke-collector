@@ -87,7 +87,9 @@ def serve(model=None, port=8765, additional_models=None, identity_model=None):
                         return self.respond(200, replay_identity(identity_model, data.get("replay_id"), data.get("expected_participant")))
                     if not isinstance(data.get("csv"), str):
                         raise ValueError("Request must include CSV text.")
-                    return self.respond(200, predict_identity(identity_model, data["csv"], data.get("expected_participant")))
+                    return self.respond(200, predict_identity(
+                        identity_model, data["csv"], data.get("expected_participant"), live=data.get("live") is True
+                    ))
                 if not isinstance(data.get("csv"), str):
                     raise ValueError("Request must include CSV text.")
                 method = data.get("model", default_method)

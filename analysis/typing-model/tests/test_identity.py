@@ -64,6 +64,20 @@ class IdentityTests(unittest.TestCase):
         a, b = predict_identity(self.model,text,"P01"), predict_identity(self.model,renamed,"P01")
         self.assertEqual(a["median_score"], b["median_score"])
         self.assertEqual(a["status"], b["status"])
+        self.assertEqual(a["windows"], b["windows"])
+        self.assertTrue(all(w["likely_participant"] == "P02" for w in a["windows"]))
+
+    def test_author_guess_requires_one_other_matching_profile(self):
+        recording_text = recording(gap=350, hold=200, count=200)
+        profiles = self.model["profiles"]
+        for alternatives in ({}, {"P02": profiles["P02"], "P03": profiles["P02"]}):
+            model = {**self.model, "profiles": {"P01": profiles["P01"], **alternatives}}
+            window, = predict_identity(model, recording_text, "P01")["windows"]
+            self.assertTrue(window["unusual"])
+            self.assertIsNone(window["likely_participant"])
+        window, = predict_identity(self.model, recording(count=200), "P01")["windows"]
+        self.assertFalse(window["unusual"])
+        self.assertNotIn("likely_participant", window)
 
     def test_latest_window_can_alert_before_session_median(self):
         normal, _ = extract(read_csv(recording(count=600)), 200)
@@ -96,13 +110,35 @@ class IdentityTests(unittest.TestCase):
         writer.writerows(first + [marker] + second)
         result = predict_identity(self.model,output.getvalue(),"P01")
         self.assertEqual(result["quality"]["usable_keypresses"],300)
+        self.assertEqual(result["quality"]["next_window_keypresses"], 150)
         self.assertEqual(result["window_count"],0)
         self.assertEqual(result["status"],"insufficient_data")
+
+    def test_live_progress_waits_for_release_and_excludes_modifiers(self):
+        text = recording(count=199)
+        row = next(r for r in csv.DictReader(io.StringIO(text)) if r["event"] == "down")
+        row.update(timestamp_ms="99990", press_id="shift", key="Shift")
+        extra = io.StringIO(newline="")
+        writer = csv.DictWriter(extra, fieldnames=list(row))
+        writer.writerow(row)
+        writer.writerow({**row, "event": "up", "timestamp_ms": "99991"})
+        row.update(timestamp_ms="99992", press_id="pending", key="a")
+        writer.writerow(row)
+        pending = text.rstrip("\r\n") + "\n" + extra.getvalue()
+        result = predict_identity(self.model, pending, "P01", live=True)
+        self.assertEqual(result["quality"]["next_window_keypresses"], 199)
+        self.assertEqual(result["window_count"], 0)
+        writer.writerow({**row, "event": "up", "timestamp_ms": "100000"})
+        settled = text.rstrip("\r\n") + "\n" + extra.getvalue()
+        result = predict_identity(self.model, settled, "P01", live=True)
+        self.assertEqual(result["quality"]["next_window_keypresses"], 0)
+        self.assertEqual(result["window_count"], 1)
 
     def test_replay_is_numerical_and_scores_against_selected_author(self):
         replay = next(r for r in self.model["replays"] if r["participant"] == "P02")
         result = replay_identity(self.model,replay["id"],"P01")
         self.assertEqual(result["source"], "recorded_replay")
+        self.assertTrue(all(w["likely_participant"] == "P02" for w in result["windows"]))
         self.assertEqual(result["status"], "change_detected")
         description = public_description(self.model)
         self.assertNotIn('"examples"', json.dumps(description))

@@ -7,15 +7,11 @@
 <style>
 :root{font:15px/1.6 'Segoe UI',system-ui,sans-serif;color:#203a3a;background:#f5f6f2;--teal:#146b60;--muted:#647773;--border:#dce5df;--amber:#966015;color-scheme:light}
 *{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button,select,summary{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid #4d9d91;outline-offset:3px}
-header{background:white;border-bottom:1px solid var(--border)}.nav{max-width:1240px;margin:auto;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;gap:14px}.brand{font-size:1.1rem;font-weight:750}.brand b{background:var(--teal);color:white;border-radius:9px;padding:5px 9px;margin-right:9px}.tag,.eyebrow{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:650;color:var(--muted)}.tag{border:1px solid var(--border);border-radius:30px;padding:5px 12px}main{max-width:1240px;margin:auto;padding:36px 28px}h1{font-size:clamp(2rem,4vw,3rem);line-height:1.15;letter-spacing:-.05em;font-weight:650;margin:10px 0 14px}h2{font-size:1.2rem;letter-spacing:-.025em;margin:0 0 12px}h3{font-size:.94rem;margin:18px 0 8px}p{color:var(--muted);margin:8px 0 16px}.intro{max-width:720px}.layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:22px;align-items:start;margin-top:28px}.layout>*{min-width:0}.panel{background:white;border:1px solid var(--border);border-radius:15px;padding:23px;margin-bottom:20px}.step{font-size:.7rem;letter-spacing:.12em;color:var(--teal);text-transform:uppercase;font-weight:700;margin-bottom:15px}.field{display:block;font-size:.85rem;font-weight:650;margin:14px 0 6px}select,textarea{width:100%;border:1px solid #c6d7cc;border-radius:8px;background:white;padding:10px 12px;color:inherit}textarea{resize:vertical;min-height:170px;line-height:1.7}.small,small{font-size:.8rem;color:var(--muted)}.primary{background:var(--teal);color:white;border:0;border-radius:8px;padding:11px 16px;font-weight:600}.secondary{background:white;color:var(--teal);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:.82rem}.primary:hover{background:#10594f}button:disabled,input:disabled,select:disabled{opacity:.5;cursor:default}.full{width:100%;margin-top:15px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#edf2ec;padding:5px;border-radius:9px;margin:16px 0}.modes button{border:0;background:transparent;color:var(--muted);padding:9px 4px;border-radius:6px;font-size:.8rem;font-weight:600}.modes button[aria-pressed=true]{background:white;color:var(--teal);box-shadow:0 1px 4px #203a3a12}.notice{background:#faf5e9;border-left:3px solid #d5ac64;color:#785f32;border-radius:0 7px 7px 0;padding:12px 15px;font-size:.8rem;margin:14px 0}.error{color:#9c352c;background:#fff0ed;border:1px solid #ebc9c1;padding:12px 15px;border-radius:8px}.badge{display:inline-block;background:#e7f3eb;color:var(--teal);padding:5px 11px;border-radius:30px;font-size:.75rem;font-weight:650}.badge.warn{background:#fbefdb;color:var(--amber)}.badge.neutral{background:#eef1f1;color:var(--muted)}.recording{background:#fff3ed;color:#9f4e2e}.reference{font-size:.88rem;line-height:1.8;color:#405f54;background:#eff5ee;border:1px solid #dce7db;border-radius:10px;padding:17px;max-height:235px;overflow:auto;white-space:pre-wrap}.typing{margin-top:18px}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.metric{background:#f6f8f4;border:1px solid #e6ece5;border-radius:10px;padding:14px}.metric strong{font-size:1.7rem;font-weight:650;display:block;letter-spacing:-.04em}.metric span{font-size:.74rem;color:var(--muted)}.chart{width:100%;display:block;margin:16px 0}.chart text{font:11px 'Segoe UI',system-ui,sans-serif;fill:var(--muted)}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.8rem}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e6ede5;white-space:nowrap}th{font-size:.73rem;font-weight:550;color:var(--muted)}th:first-child,td:first-child{padding-left:0}.empty{padding:45px 25px;text-align:center}.empty p{max-width:440px;margin:12px auto}.symbol{width:60px;height:60px;background:#edf5ef;border-radius:16px;display:grid;place-items:center;color:var(--teal);font-size:2rem;margin:0 auto 18px}.status-title{font-size:1.6rem;line-height:1.25;margin:8px 0}.muted{color:var(--muted)}summary{font-size:.85rem;color:var(--teal);font-weight:600}details{margin:15px 0}.progress{height:6px;background:#edf2ec;border-radius:10px;overflow:hidden;margin:12px 0}.progress div{height:100%;background:#4c9383;transition:width .2s}.detail-select{max-width:240px;font-size:.8rem}.legend{font-size:.75rem;color:var(--muted)}input[type=file]{max-width:100%;font-size:.8rem;margin:10px 0}input::file-selector-button{background:#eff5ee;border:1px solid #cad9cc;border-radius:7px;color:var(--teal);padding:8px 11px;cursor:pointer}.neighbor{display:grid;grid-template-columns:100px 1fr 45px;align-items:center;gap:10px;font-size:.78rem;margin:9px 0}.track{height:6px;background:#edf2ec;border-radius:8px}.track div{height:100%;background:#4a9281;border-radius:8px}footer{border-top:1px solid var(--border);padding-top:18px;color:var(--muted);font-size:.75rem;margin-top:16px}.profile-note{min-height:45px}.eval{margin-top:12px}[hidden]{display:none!important}a{color:var(--teal)}#result:focus{outline:none}@media(max-width:800px){.layout{grid-template-columns:1fr}.nav,main{padding-left:18px;padding-right:18px}.panel{padding:18px}.tag{font-size:.6rem}.metric{padding:11px}.metric strong{font-size:1.4rem}.metrics{gap:7px}.detail-select{max-width:100%}}
+.eyebrow{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;font-weight:650;color:var(--muted)}main{max-width:1240px;margin:auto;padding:36px 28px}h2{font-size:1.2rem;letter-spacing:-.025em;margin:0 0 12px}h3{font-size:.94rem;margin:18px 0 8px}p{color:var(--muted);margin:8px 0 16px}.layout{display:grid;grid-template-columns:330px minmax(0,1fr);gap:22px;align-items:start}.layout>*{min-width:0}.panel{background:white;border:1px solid var(--border);border-radius:15px;padding:23px;margin-bottom:20px}.step{font-size:.7rem;letter-spacing:.12em;color:var(--teal);text-transform:uppercase;font-weight:700;margin-bottom:15px}.field{display:block;font-size:.85rem;font-weight:650;margin:14px 0 6px}select,textarea{width:100%;border:1px solid #c6d7cc;border-radius:8px;background:white;padding:10px 12px;color:inherit}textarea{resize:vertical;min-height:170px;line-height:1.7}.small,small{font-size:.8rem;color:var(--muted)}.primary{background:var(--teal);color:white;border:0;border-radius:8px;padding:11px 16px;font-weight:600}.secondary{background:white;color:var(--teal);border:1px solid var(--border);border-radius:8px;padding:9px 13px;font-size:.82rem}.primary:hover{background:#10594f}button:disabled,input:disabled,select:disabled{opacity:.5;cursor:default}.full{width:100%;margin-top:15px}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.between{justify-content:space-between}.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;background:#edf2ec;padding:5px;border-radius:9px;margin:16px 0}.modes button{border:0;background:transparent;color:var(--muted);padding:9px 4px;border-radius:6px;font-size:.8rem;font-weight:600}.modes button[aria-pressed=true]{background:white;color:var(--teal);box-shadow:0 1px 4px #203a3a12}.notice{background:#faf5e9;border-left:3px solid #d5ac64;color:#785f32;border-radius:0 7px 7px 0;padding:12px 15px;font-size:.8rem;margin:14px 0}.error{color:#9c352c;background:#fff0ed;border:1px solid #ebc9c1;padding:12px 15px;border-radius:8px}.badge{display:inline-block;background:#e7f3eb;color:var(--teal);padding:5px 11px;border-radius:30px;font-size:.75rem;font-weight:650}.badge.warn{background:#fbefdb;color:var(--amber)}.badge.neutral{background:#eef1f1;color:var(--muted)}.recording{background:#fff3ed;color:#9f4e2e}.reference{font-size:.88rem;line-height:1.8;color:#405f54;background:#eff5ee;border:1px solid #dce7db;border-radius:10px;padding:17px;max-height:235px;overflow:auto;white-space:pre-wrap}.typing{margin-top:18px}.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:20px 0}.metric{background:#f6f8f4;border:1px solid #e6ece5;border-radius:10px;padding:14px}.metric strong{font-size:1.7rem;font-weight:650;display:block;letter-spacing:-.04em}.metric span{font-size:.74rem;color:var(--muted)}.chart{width:100%;display:block;margin:16px 0}.chart text{font:11px 'Segoe UI',system-ui,sans-serif;fill:var(--muted)}.scroll{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.8rem}th,td{text-align:left;padding:10px 8px;border-bottom:1px solid #e6ede5;white-space:nowrap}th{font-size:.73rem;font-weight:550;color:var(--muted)}th:first-child,td:first-child{padding-left:0}.empty{padding:45px 25px;text-align:center}.empty p{max-width:440px;margin:12px auto}.symbol{width:60px;height:60px;background:#edf5ef;border-radius:16px;display:grid;place-items:center;color:var(--teal);font-size:2rem;margin:0 auto 18px}.status-title{font-size:1.6rem;line-height:1.25;margin:8px 0}.muted{color:var(--muted)}summary{font-size:.85rem;color:var(--teal);font-weight:600}details{margin:15px 0}.progress{height:6px;background:#edf2ec;border-radius:10px;overflow:hidden;margin:12px 0}.progress div{height:100%;background:#4c9383;transition:width .2s}.detail-select{max-width:240px;font-size:.8rem}.legend{font-size:.75rem;color:var(--muted)}input[type=file]{max-width:100%;font-size:.8rem;margin:10px 0}input::file-selector-button{background:#eff5ee;border:1px solid #cad9cc;border-radius:7px;color:var(--teal);padding:8px 11px;cursor:pointer}.neighbor{display:grid;grid-template-columns:100px 1fr 45px;align-items:center;gap:10px;font-size:.78rem;margin:9px 0}.track{height:6px;background:#edf2ec;border-radius:8px}.track div{height:100%;background:#4a9281;border-radius:8px}footer{border-top:1px solid var(--border);padding-top:18px;color:var(--muted);font-size:.75rem;margin-top:16px}.profile-note{min-height:45px}[hidden]{display:none!important}a{color:var(--teal)}#result:focus{outline:none}@media(max-width:800px){.layout{grid-template-columns:1fr}main{padding-left:18px;padding-right:18px}.panel{padding:18px}.metric{padding:11px}.metric strong{font-size:1.4rem}.metrics{gap:7px}.detail-select{max-width:100%}}
 </style>
 </head>
 <body>
-<header><div class="nav"><div class="brand"><b>⌁</b> Typing Lab</div><span class="tag">Fixed-text author demo · Local only</span></div></header>
 <main>
-<div class="eyebrow">Keystroke dynamics / Expected-author check</div>
-<h1>Is the expected author still typing?</h1>
-<p class="intro">Choose whose rhythm to expect. Compare live typing or a recording with that person’s normal baseline, one 200-keypress window at a time.</p>
 <div class="layout">
 <aside>
 <section class="panel"><div class="step">01 / Choose the expected author</div><label class="field" for="expected">Expected author</label><select id="expected" disabled><option>Loading member profiles…</option></select><p id="profile-note" class="small profile-note"></p><div id="profile-validation"></div><p class="small">kNN · k=<span id="k">5</span> · 8 timing features<br>Each author has a separately calibrated threshold.</p>
@@ -25,16 +21,20 @@ header{background:white;border-bottom:1px solid var(--border)}.nav{max-width:124
 <div id="source-replay" hidden><label class="field" for="replay">Recorded example</label><select id="replay"></select><p class="small">A prerecorded example, using stored numerical windows. Its score is recomputed against your selected expected author.</p><button id="load-replay" class="primary full">Load recorded replay</button><div id="replay-controls" class="row" style="margin-top:12px" hidden><button id="previous" class="secondary">← Previous</button><button id="next" class="secondary">Next window →</button><small id="replay-progress"></small></div></div>
 <button id="reset" class="secondary full">Clear session</button>
 </section>
-<section class="panel"><div class="step">How the check works</div><p class="small">Each window becomes eight hold-time and transition-time summaries. Its score is the mean distance to the expected author’s five nearest normal training windows.</p><p class="small">A score above that author’s threshold signals a change. It does not identify who typed or explain why their rhythm changed.</p></section>
+<section class="panel"><div class="step">How the check works</div><p class="small">Each window becomes eight hold-time and transition-time summaries. Its score is the mean distance to the expected author’s five nearest normal training windows.</p>
+<ul class="small">
+  <li><strong>Key hold:</strong> median, interquartile range (IQR), and 90th percentile</li>
+  <li><strong>Press to press:</strong> median, IQR, and 90th percentile</li>
+  <li><strong>Release to next press:</strong> median and IQR</li>
+</ul>
+</section>
 </aside>
 <div>
 <section id="live-panel" class="panel"><div class="row between"><h2>Copy the fixed passage</h2><span id="capture-status" class="badge neutral">Recording off</span></div><details open><summary>Reference passage · 800 characters</summary><div id="reference" class="reference">Loading…</div></details><label class="field" for="typing">Live typing box</label><textarea id="typing" class="typing" disabled placeholder="Start a session, then type the passage here. Paste and autocomplete are excluded." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea><div class="progress" aria-hidden="true"><div id="progress-bar" style="width:0"></div></div><p id="capture-progress" class="small">A result needs a complete window of 200 usable keypresses.</p><small>These are physical-keypress windows, not passage-aligned sections. Corrections can change how much text a window covers.</small></section>
 <div id="message" role="status" aria-live="polite"></div>
 <div id="result" tabindex="-1" aria-live="polite"><section class="panel empty"><div class="symbol" aria-hidden="true">⌁</div><h2>Ready for an author check.</h2><p>Start a live session, upload a collector CSV, or load a recorded example. The expected author stays explicit throughout.</p></section></div>
-<div class="notice">A typing change can reflect another author or variation within the same author. It cannot establish fatigue or alcohol impairment. Scores are distances, not probabilities.</div>
 </div>
 </div>
-<section class="panel eval"><div class="row between"><div><div class="step">Held-out evaluation / Current data</div><h2>How each member’s profile performed</h2></div><span class="badge neutral">Exploratory</span></div><div id="evaluation"></div><p class="small">Normal recordings are held out from training and calibration. Without independent normal test days, false-alert results are provisional. Other-author recordings are offline takeover proxies; devices and recording days may also affect separation.</p></section>
 <footer>Local fixed-text prototype · Expected-author verification · Training references are marked when uploaded again</footer>
 </main>
 <script>
@@ -42,10 +42,9 @@ header{background:white;border-bottom:1px solid var(--border)}.nav{max-width:124
 const $ = s => document.querySelector(s);
 const el = (tag, text, cls) => { const e = document.createElement(tag); if (text !== undefined) e.textContent = text; if (cls) e.className = cls; return e; };
 const fmt = value => Number(value).toLocaleString(undefined, {maximumFractionDigits: 2});
-const count = metric => metric.sessions ? `${metric.flagged_sessions} / ${metric.sessions}` : 'Unavailable';
 const featureNames = {hold_median_ms:'Key hold · median',hold_iqr_ms:'Key hold · spread',hold_p90_ms:'Key hold · 90th percentile',dd_median_ms:'Press-to-press · median',dd_iqr_ms:'Press-to-press · spread',dd_p90_ms:'Press-to-press · 90th percentile',ud_median_ms:'Release-to-press · median',ud_iqr_ms:'Release-to-press · spread'};
 let config, mode = 'live', recorder, active = false, rows = [], origin = 0, liveParticipant = '', liveSession = '';
-let data = null, replayIndex = 0, requestVersion = 0, timer, nextCheck = 200, submittedDowns = 0, waitingForRelease = false;
+let data = null, replayIndex = 0, requestVersion = 0, timer;
 const message = (text = '', error = false) => { const box = $('#message'); box.replaceChildren(); if (text) box.append(el('p', text, error ? 'error' : 'small')); };
 function makeTable(headers, values) {
   const wrap = el('div', undefined, 'scroll'), table = el('table'), head = el('thead'), tr = el('tr'), body = el('tbody');
@@ -68,10 +67,10 @@ function stopCapture(score = true) {
   active = false; clearTimeout(timer); recorder.stop();
   $('#typing').disabled = true; $('#expected').disabled = false; $('#start').disabled = false; $('#stop').disabled = true; $('#handover').disabled = true;
   $('#capture-status').textContent = 'Recording off'; $('#capture-status').className = 'badge neutral';
-  if (score && rows.length) analyzeLive(true);
+  if (score) analyzeLive();
 }
 function clearSession() {
-  stopCapture(false); clearTimeout(timer); rows = []; nextCheck = 200; submittedDowns = 0; waitingForRelease = false;
+  stopCapture(false); clearTimeout(timer); rows = [];
   $('#typing').value = ''; $('#capture-progress').textContent = 'A result needs a complete window of 200 usable keypresses.'; $('#progress-bar').style.width = '0%'; resetResult();
 }
 function setMode(next) {
@@ -87,56 +86,71 @@ function csvText() {
 }
 async function post(path, body, source) {
   const version = ++requestVersion;
-  message('Comparing timing windows…');
+  const progressUpdate = source === 'live' && body.live;
+  if (!progressUpdate) message('Comparing timing windows…');
   try {
     const response = await fetch(path, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({...body, expected_participant:$('#expected').value})});
     const result = await response.json();
     if (!response.ok) throw Error(result.error || 'Could not compare the recording.');
     if (version !== requestVersion) return null;
-    data = result; replayIndex = 0; message();
+    const windowsChanged = JSON.stringify(data?.windows ?? []) !== JSON.stringify(result.windows);
+    data = result; replayIndex = 0;
+    if (!progressUpdate) message();
     if (source === 'replay') { $('#replay-controls').hidden = false; updateReplayControls(); }
-    renderResult(source === 'replay' ? 0 : result.windows.length - 1);
+    if (!progressUpdate || windowsChanged) renderResult(source === 'replay' ? 0 : result.windows.length - 1);
     return result;
   } catch (error) { if (version === requestVersion) message(error.message, true); return null; }
 }
-async function analyzeLive(force = false) {
-  const downs = rows.filter(r => r.event === 'down').length, ups = rows.filter(r => r.event === 'up').length;
-  const completedRelease = waitingForRelease && downs === submittedDowns && ups >= downs;
-  if (!rows.length || (!force && downs < nextCheck && !completedRelease)) return;
-  submittedDowns = downs; waitingForRelease = ups < downs; nextCheck = downs + 200;
-  const result = await post('/api/identity/predict', {csv:csvText()}, 'live');
-  if (result) {
-    const usable = result.quality.usable_keypresses || 0;
-    nextCheck = downs + (200 - usable % 200);
-    $('#capture-progress').textContent = `${downs} recorded presses · ${usable} usable presses · ${result.window_count} complete windows scored`;
-  }
+async function analyzeLive() {
+  if (!rows.length) return;
+  const result = await post('/api/identity/predict', {csv:csvText(), live:active}, 'live');
+  if (!result) return;
+  const usable = result.quality.next_window_keypresses;
+  $('#progress-bar').style.width = `${usable / result.window_size * 100}%`;
+  $('#capture-progress').textContent = `${usable} / ${result.window_size} usable keypresses toward the next window · ${result.window_count} complete windows scored`;
+}
+function scheduleLiveUpdate() {
+  clearTimeout(timer);
+  timer = setTimeout(analyzeLive, 100);
 }
 function received(newRows) {
   rows.push(...newRows);
-  const count = rows.filter(r => r.event === 'down').length;
-  $('#progress-bar').style.width = `${count % 200 / 2}%`;
-  $('#capture-progress').textContent = `${count} recorded presses · checks use complete 200-keypress windows`;
   if (rows.length > 20000 && active) { stopCapture(); message('Session limit reached. Clear the session to start again.', true); return; }
-  if (active) { clearTimeout(timer); timer = setTimeout(() => analyzeLive(), 600); }
+  if (active) scheduleLiveUpdate();
 }
 function svgNode(tag, attrs = {}, text) {
   const e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (const [k,v] of Object.entries(attrs)) e.setAttribute(k,v); if (text !== undefined) e.textContent = text; return e;
 }
+function authorGuess(window) {
+  if (window.likely_participant === undefined) return '';
+  return window.likely_participant ? 'Likely ' + window.likely_participant : 'No clear author match';
+}
 function chart(windows, threshold) {
-  const svg = svgNode('svg',{viewBox:'0 0 620 210',class:'chart',role:'img','aria-label':'Window distance scores and the expected author’s threshold. Exact scores follow in the table.'});
+  const showGuesses = windows.length <= 8 && windows.some(w => w.likely_participant);
+  const svg = svgNode('svg',{viewBox:showGuesses ? '0 0 620 230' : '0 0 620 210',class:'chart',role:'img','aria-label':'Window distance scores and the expected author’s threshold. Exact scores follow in the table.'});
   const max = Math.max(threshold, ...windows.map(w => w.score), .1) * 1.25, y = value => 165 - value / max * 135;
   for (let i=0;i<4;i++) { const value=max*i/3; svg.append(svgNode('line',{x1:48,x2:603,y1:y(value),y2:y(value),stroke:'#e3eae3'}),svgNode('text',{x:39,y:y(value)+4,'text-anchor':'end'},fmt(value))); }
   const width = 545 / windows.length;
   windows.forEach((w,i) => {
     const bar = svgNode('rect',{x:50+i*width,y:y(w.score),width:Math.max(.5,width*.66),height:Math.max(1,165-y(w.score)),rx:Math.min(4,width*.2),fill:w.unusual?'#c7954a':'#4a9281'});
-    bar.append(svgNode('title',{},`Window ${i+1}: ${fmt(w.score)} · ${w.unusual?'Change':'Consistent'}`)); svg.append(bar);
-    if (windows.length<=16 || i===0 || i===windows.length-1) svg.append(svgNode('text',{x:50+i*width+width*.33,y:185,'text-anchor':'middle'},String(i+1)));
+    const guess = authorGuess(w);
+    bar.append(svgNode('title',{},`Window ${i+1}: ${fmt(w.score)} · ${guess || (w.unusual ? 'Change' : 'Consistent')}`)); svg.append(bar);
+    const labelX = 50 + i * width + width * .33;
+    if (windows.length<=16 || i===0 || i===windows.length-1) svg.append(svgNode('text',{x:labelX,y:185,'text-anchor':'middle'},String(i+1)));
+    if (showGuesses && w.likely_participant) svg.append(svgNode('text',{x:labelX,y:203,'text-anchor':'middle',style:'fill:#966015;font-weight:650'},guess));
   });
-  svg.append(svgNode('line',{x1:48,x2:603,y1:y(threshold),y2:y(threshold),stroke:'#966015','stroke-dasharray':'5 4'}),svgNode('text',{x:601,y:Math.max(18,y(threshold)-7),'text-anchor':'end',style:'fill:#966015'},`Threshold ${fmt(threshold)}`),svgNode('text',{x:325,y:207,'text-anchor':'middle'},'Completed timing windows'));
+  svg.append(svgNode('line',{x1:48,x2:603,y1:y(threshold),y2:y(threshold),stroke:'#966015','stroke-dasharray':'5 4'}),svgNode('text',{x:601,y:Math.max(18,y(threshold)-7),'text-anchor':'end',style:'fill:#966015'},`Threshold ${fmt(threshold)}`),svgNode('text',{x:325,y:showGuesses ? 226 : 207,'text-anchor':'middle'},'Completed timing windows'));
   return svg;
 }
 function inspectWindow(w) {
   const box = el('div'); box.append(el('h3',`Window ${w.window} · ${w.unusual?'Change detected':'Consistent with baseline'}`));
+  const guess = authorGuess(w);
+  if (guess) {
+    const explanation = w.likely_participant
+      ? 'Only this other enrolled profile was within its own threshold.'
+      : 'A guess requires exactly one other enrolled profile within its own threshold.';
+    box.append(el('p',guess + '. ' + explanation,'small'));
+  }
   for (const c of w.top_changes) box.append(el('p',`${featureNames[c.feature]}: ${fmt(c.observed)} ms versus ${fmt(c.baseline)} ms in its neighbours`,'small'));
   box.append(el('h3','Nearest normal windows'));
   const max = Math.max(...w.neighbors.map(n => n.distance), .01);
@@ -155,6 +169,8 @@ function renderResult(index) {
   }
   const windows = data.windows.slice(0,index+1), latest = windows[windows.length-1];
   section.append(el('h2',latest.unusual ? `Change from ${data.expected_participant}’s baseline` : `Consistent with ${data.expected_participant}`,'status-title'),el('span',`Latest completed window · ${latest.window}`,`badge ${latest.unusual?'warn':''}`));
+  const guess = authorGuess(latest);
+  if (guess) section.append(' ', el('span',guess,'badge warn'));
   const sorted=windows.map(w=>w.score).sort((a,b)=>a-b),mid=Math.floor(sorted.length/2),median=sorted.length%2?sorted[mid]:(sorted[mid-1]+sorted[mid])/2;
   const metrics = el('div',undefined,'metrics');
   for (const [value,label] of [[fmt(latest.score),'Latest window distance'],[fmt(data.threshold),'Expected-author threshold'],[`${windows.filter(w=>w.unusual).length} / ${windows.length}`,'Changed windows so far']]) { const metric=el('div',undefined,'metric');metric.append(el('strong',value),el('span',label));metrics.append(metric); }
@@ -162,7 +178,7 @@ function renderResult(index) {
   const label=el('label','Inspect a completed window','field'),select=el('select',undefined,'detail-select');select.id='inspect-window';label.htmlFor=select.id;
   windows.forEach((w,i)=>{const option=el('option',`Window ${w.window} · ${fmt(w.score)}`);option.value=i;select.append(option);});select.value=windows.length-1;
   const detail=el('div');detail.append(inspectWindow(latest));select.addEventListener('change',()=>detail.replaceChildren(inspectWindow(windows[Number(select.value)])));
-  const all=el('details');all.append(el('summary','Exact window scores'),makeTable(['Window','Distance','Result'],windows.map(w=>[w.window,fmt(w.score),w.unusual?'Change':'Consistent'])));
+  const all=el('details');all.append(el('summary','Exact window scores'),makeTable(['Window','Distance','Result','Author guess'],windows.map(w=>[w.window,fmt(w.score),w.unusual?'Change':'Consistent',authorGuess(w) || '—'])));
   const download=el('button','Download result JSON','secondary');download.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=el('a');a.href=url;a.download='author-check.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
   section.append(label,select,detail,all,download);target.replaceChildren(section);
 }
@@ -179,7 +195,7 @@ $('#start').addEventListener('click',()=>{
 $('#stop').addEventListener('click',()=>stopCapture());
 $('#handover').addEventListener('click',()=>{
   clearTimeout(timer);recorder.stop();rows.push({event:'marker',timestamp_ms:Date.now()-origin,text_type:'fixed',detail:'blur'});$('#typing').value='';recorder.start();
-  nextCheck=rows.filter(r=>r.event==='down').length+200;waitingForRelease=false;
+  scheduleLiveUpdate();
   message('Handover marked. Keep the expected author unchanged. The next person should start the passage again and type at least 200 usable keypresses.');$('#typing').focus();
 });
 $('#typing').addEventListener('paste',event=>{event.preventDefault();message('Please type the passage yourself. A paste attempt is excluded from scoring; clear the session to restart.',true);});
@@ -196,8 +212,6 @@ async function initialize() {
     const expected=$('#expected');expected.replaceChildren();for(const p of config.profiles){const option=el('option',p.participant);option.value=p.participant;expected.append(option);}
     expected.value=config.profiles.some(p=>p.participant==='P04')?'P04':config.profiles[0].participant;expected.disabled=false;$('#reference').textContent=config.reference;$('#k').textContent=config.k;updateProfile();
     const replay=$('#replay');for(const r of config.replays){const option=el('option',`${r.participant} · ${r.session} · ${r.label} · ${r.window_count} windows`);option.value=r.id;replay.append(option);}if(!config.replays.length)$('#load-replay').disabled=true;
-    $('#evaluation').append(makeTable(['Expected author','Normal false alerts','Other-author detections','Same-author change alerts'],Object.entries(config.evaluation).map(([pid,r])=>[pid,count(r.metrics.normal_author),count(r.metrics.other_author),count(r.metrics.same_author_condition)])));
-    if(Object.keys(config.unavailable_profiles).length)$('#evaluation').append(el('p',`Insufficient data: ${Object.keys(config.unavailable_profiles).join(', ')}.`,'small'));
     resetResult();
     if(config.live_available){
       window.KS={};await new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='/identity/recorder.js';script.onload=resolve;script.onerror=()=>reject(Error('Live recorder unavailable. CSV upload and replay remain available.'));document.head.append(script);});

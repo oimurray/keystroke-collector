@@ -61,13 +61,25 @@ def get_profile(model, expected):
     return model["profiles"][expected]
 
 
-def predict_identity(model, text, expected):
+def score_identity_windows(model, expected, windows):
+    profiles = model["profiles"]
+    result = score_windows(profiles[expected], windows)
+    for window, prediction in zip(windows, result["windows"]):
+        if not prediction["unusual"]:
+            continue
+        matches = [participant for participant, profile in profiles.items()
+                   if participant != expected and not score_window(profile, window["features"])["unusual"]]
+        prediction["likely_participant"] = matches[0] if len(matches) == 1 else None
+    return result
+
+
+def predict_identity(model, text, expected, *, live=False):
     profile = get_profile(model, expected)
     rows = read_csv(text)
     # Preserve task transitions and interruptions, while counting only fixed presses as usable.
     fixed_rows = [{**r, "text_type": ""} if r["text_type"] != "fixed" else r for r in rows]
-    windows, quality = extract(fixed_rows, model["window_size"])
-    result = score_windows(profile, windows)
+    windows, quality = extract(fixed_rows, model["window_size"], live=live)
+    result = score_identity_windows(model, expected, windows)
     reference = fingerprint(text) in profile["reference_hashes"] or [rows[0]["participant_id"], rows[0]["session_id"]] in profile["reference_ids"]
     return {**result, "expected_participant": expected, "source": "csv", "window_size": model["window_size"],
             "recording_participant": rows[0]["participant_id"], "recording_session": rows[0]["session_id"],
@@ -81,7 +93,7 @@ def replay_identity(model, replay_id, expected):
     replay = next((r for r in model["replays"] if r["id"] == replay_id), None)
     if replay is None:
         raise ValueError("Choose an available recorded replay.")
-    return {**score_windows(profile, replay["windows"]), "expected_participant": expected,
+    return {**score_identity_windows(model, expected, replay["windows"]), "expected_participant": expected,
             "source": "recorded_replay", "window_size": model["window_size"],
             "recording_participant": replay["participant"], "recording_session": replay["session"],
             "recording_label": replay["label"], "reference_recording": replay["hash"] in profile["reference_hashes"],
