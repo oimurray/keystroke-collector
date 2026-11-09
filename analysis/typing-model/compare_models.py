@@ -1,4 +1,4 @@
-"""Compare four personal anomaly detectors on identical recording splits.
+"""Compare five personal anomaly detectors on identical recording splits.
 
 Only this optional benchmark requires scikit-learn. Nothing is pickled or uploaded.
 """
@@ -14,10 +14,12 @@ import statistics as st
 import sys
 
 from keystroke_model import FEATURES, fit_profile, load_sessions, save_json, score, select_windows, split_baseline
+from whitening import WhitenedFeatureKNN
 
 
-METHODS = ("baseline", "knn", "lof", "isolation_forest")
-LABELS = {"baseline": "Personal baseline", "knn": "kNN", "lof": "LOF", "isolation_forest": "Isolation Forest"}
+METHODS = ("baseline", "knn", "whitened_knn", "lof", "isolation_forest")
+LABELS = {"baseline": "Personal baseline", "knn": "kNN", "whitened_knn": "Whitened kNN",
+          "lof": "LOF", "isolation_forest": "Isolation Forest"}
 
 
 class Detector:
@@ -30,6 +32,9 @@ class Detector:
         self.estimator = None
         if method == "knn":
             self.parameters = {"k": k}
+        elif method == "whitened_knn":
+            self.estimator = WhitenedFeatureKNN(windows, FEATURES, k)
+            self.parameters = {"k": k, "covariance_shrinkage": self.estimator.model["shrinkage"]}
         elif method == "lof":
             from sklearn.neighbors import LocalOutlierFactor
             effective = min(lof_neighbors, len(windows) - 1)
@@ -41,7 +46,7 @@ class Detector:
             self.estimator = IsolationForest(**self.parameters, contamination="auto", n_jobs=1)
         elif method != "baseline":
             raise ValueError(f"Unknown method: {method}")
-        if self.estimator is not None:
+        if self.estimator is not None and method != "whitened_knn":
             self.estimator.fit(self.matrix(windows))
 
     def matrix(self, windows):
@@ -51,7 +56,9 @@ class Detector:
     def scores(self, windows):
         if not windows:
             return []
-        if self.estimator is not None:
+        if self.method == "whitened_knn":
+            values = [self.estimator.score(w) for w in windows]
+        elif self.estimator is not None:
             # score_samples (not predict/decision_function): use our separate calibration.
             values = [-float(v) for v in self.estimator.score_samples(self.matrix(windows))]
         else:
@@ -145,7 +152,7 @@ def compare_sessions(sessions, skipped, size=200, false_alarm=.05, baseline_labe
             report["profiles"][f"{pid}:{text_type}"] = entry
             # Common eligibility prevents comparing models on different subsets.
             if len(tw) < max(3, k) or len(cw) < 2:
-                entry.update(status="insufficient_data", reason=f"All four methods require >= {max(3, k)} training and 2 calibration windows on the shared split.")
+                entry.update(status="insufficient_data", reason=f"All five methods require >= {max(3, k)} training and 2 calibration windows on the shared split.")
             else:
                 entry["status"] = "compared"
                 reference_days = {s["day"] for s in training + calibration}
@@ -196,10 +203,10 @@ def fraction(flagged, total):
 
 
 def markdown(report):
-    lines = ["# Four-model comparison", "", "Exploratory benchmark; no accuracy winner is selected.", "",
+    lines = ["# Five-model comparison", "", "Exploratory benchmark; no accuracy winner is selected.", "",
              f"Window: {report['window_size']} keypresses. Baseline label: {cell(report['baseline_label'])}. "
              f"Calibration target: {report['false_alarm_target_per_window']:.1%} per window.", "",
-             "## Overall results", "", "Rows pool only profiles eligible for all four models. Fixed/free tasks are separate evaluations; "
+             "## Overall results", "", "Rows pool only profiles eligible for all five models. Fixed/free tasks are separate evaluations; "
              "a mixed-task recording can contribute two session-task results. Participant-days count unique participant/date pairs.", "",
              "| Model | Evaluation | Session-task alerts | Window alerts | Participant-days |",
              "| --- | --- | ---: | ---: | ---: |"]

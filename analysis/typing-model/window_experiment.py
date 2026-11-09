@@ -108,12 +108,12 @@ def experiment(root, sizes=(100, 200, 400), false_alarm=.05, baseline_label="nor
             "configuration": {"baseline_label": baseline_label, "false_alarm_target_per_window": false_alarm,
                               "k": k, "lof_neighbors": lof_neighbors, "seed": seed},
             "source_code_hashes": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                                   for name in ("window_experiment.py", "compare_models.py", "keystroke_model.py")},
+                                   for name in ("window_experiment.py", "compare_models.py", "keystroke_model.py", "whitening.py")},
             "coverage": coverage, "matched_cohort": cohort, "excluded_from_matched_cohort": excluded,
             "matched_metrics": matched, "reports": reports,
             "limitations": [
                 "Splits are chosen once at the smallest requested size and held fixed across all sizes.",
-                "The paired results use only session-tasks scored by all four models at every requested size.",
+                "The paired results use only session-tasks scored by all five models at every requested size.",
                 "All-available results can include different cohorts; use the paired table when comparing sizes.",
                 "Every size refits normal training scales/models and recalibrates its threshold on normal calibration windows.",
                 "Window count, training sample count and resolved LOF neighbours change with size; this measures the whole pipeline's response.",

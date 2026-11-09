@@ -22,7 +22,7 @@ class WindowExperimentTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.thread_limit.restore_original_limits()
 
-    def test_real_four_model_sweep_keeps_splits_and_matches_recordings(self):
+    def test_real_five_model_sweep_keeps_splits_and_matches_recordings(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             add_session(root, 1, 1, count=2400)

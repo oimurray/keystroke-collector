@@ -15,7 +15,7 @@ and numerical model artifacts remain ignored by Git.
 
 | Experiment on 8 Nov | Features / scope | Main observation |
 | --- | --- | --- |
-| Four-model benchmark | 11 features, 200 keypresses; personal anomaly task | Baseline/kNN/LOF flagged 5/5 comparison sessions; Isolation Forest 3/5. Normal test-day false-alert rates unavailable. |
+| Five-model benchmark (including optional covariance whitening) | 11 features, 200 keypresses; personal anomaly task | Baseline/kNN/LOF flagged 5/5 comparison sessions; Isolation Forest 3/5. Normal test-day false-alert rates unavailable. |
 | Window-size sweep | Same 11 features, 100/200/400; fixed recording splits | Baseline/kNN/LOF flagged 5/5 at each size. Retained 200 for the working demo, not as a validated optimum. |
 | P04 ablations | 8 timing features, then backspaces; raw vs aligned sections | Backspaces changed no paired raw-window session decisions. Alignment reduced coverage and was not established as better. |
 | Per-member identity evaluation | 8 timing features, kNN, 200 presses; expected-author task | Separate normal false alerts, other-author detections and same-author condition false alerts for P01-P04. All normal test sets remain provisional. |
@@ -221,13 +221,13 @@ Model/report outputs are ignored by Git because they still contain personal
 study metadata. Source recordings remain in the collector repository. The server
 listens only on 127.0.0.1 and rejects foreign browser origins. Stop with Ctrl+C.
 
-## Compare four models on identical data
+## Compare five models on identical data
 
-The optional benchmark compares Personal baseline, kNN, Local Outlier Factor
-(LOF), and Isolation Forest. It produces a readable Markdown report and full JSON
-in `reports/model_comparison.*`. These private outputs are ignored by Git.
-The website continues to offer its two existing models; this benchmark does not
-replace their saved models or thresholds.
+The optional benchmark compares Personal baseline, kNN, covariance-whitened kNN,
+Local Outlier Factor (LOF), and Isolation Forest. It produces a readable Markdown
+report and full JSON in `reports/model_comparison.*`. These private outputs are
+ignored by Git. The website continues to offer its existing models; this benchmark
+does not replace their saved models or thresholds.
 
 One-time setup, from this `analysis/typing-model` folder in PowerShell:
 
@@ -245,7 +245,7 @@ Then double-click **compare.cmd**, or run:
 
 `compare.cmd "C:\another\export-folder"` changes the input folder. The comparison
 only reads source recordings. Use `--output` and `--markdown` to preserve reports
-from different experiments. All four methods use the same eligible profiles,
+from different experiments. All five methods use the same eligible profiles,
 eleven features, normal training/calibration/test splits and training-only robust
 scales. kNN defaults to k=5; LOF uses novelty mode and min(20, training windows - 1)
 neighbours; Isolation Forest uses 200 trees and seed 42. These are presets rather
@@ -267,12 +267,43 @@ verified impairment. Keep future test days untouched while developing models.
 
 The original commands still run without third-party dependencies. Comparison
 tests skip when scikit-learn is absent; run the full suite using the environment
-above to exercise all four methods.
+above to exercise all five methods.
+
+### Covariance-whitened kNN
+
+`whitening.py` adds an optional variant that keeps the same k=5 neighbour rule and
+calibration protocol while changing only the distance geometry. First it applies
+the existing median/MAD scaling, then estimates the training-window covariance
+matrix. It shrinks this matrix toward the identity with a fixed coefficient
+`lambda = 0.1` and uses a Cholesky factor rather than an explicit matrix inverse:
+
+\[
+\Sigma_\lambda = 0.9\Sigma + 0.1I,\qquad
+z' = L^{-1}(z-\bar z),\qquad \Sigma_\lambda = LL^T
+\]
+
+The nearest-five distance is computed in this whitened space. Covariance,
+centering and the Cholesky factor are fitted only on normal training windows;
+calibration/test recordings cannot change them. Shrinkage is a preset, not tuned
+on condition results. A small numerical diagonal jitter only stabilizes the
+factorization.
+
+The five-model benchmark includes this variant automatically. For the optional
+identity demo, use:
+
+```powershell
+python identity_model.py train --data ..\.. --whitening
+python identity_model.py serve --port 8768
+```
+
+The generated model uses method `identity_whitened_knn`; old `identity_knn`
+artifacts remain supported. This changes the score geometry, not the task,
+features, expected-author selection or interpretation of an alert.
 
 ## Experiment with window sizes
 
 Double-click **window-experiment.cmd** to compare **100, 200 and 400 usable
-keypresses** across all four models. It uses the comparison environment described
+keypresses** across all five models. It uses the comparison environment described
 above. An optional first argument selects another export folder.
 
 From this folder in PowerShell:

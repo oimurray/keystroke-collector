@@ -26,6 +26,7 @@ data. Use the extension for study collection; the live demo does not save record
 | --- | --- |
 | Initial prototype | Personal baseline and kNN; local CSV results dashboard. |
 | 8 Nov: model comparison | Baseline, kNN, LOF and Isolation Forest on shared splits; no independent normal test days, so no accuracy winner established. |
+| 9 Nov: covariance whitening | Optional shrinkage-whitened kNN added to the identity demo and five-model benchmark; original models remain available. |
 | 8 Nov: window sizes | 100/200/400 keypresses with fixed recording assignments; retained 200 as a working preset, not a proven optimum. |
 | 8 Nov: P04 feature/alignment pilot | Timing-only vs backspaces and aligned passage/error features; backspaces did not change paired raw-window decisions; alignment was not established as an improvement. |
 | 8 Nov: member demo | Profiles for P01-P04, live/upload/replay modes, explicit expected author and separate latest-window/session scores. |

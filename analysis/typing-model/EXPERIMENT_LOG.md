@@ -1,6 +1,6 @@
 # Experiment timeline and handoff
 
-Updated **8 November 2026 (Europe/Paris)**. This is the checked-in summary for
+Updated **9 November 2026 (Europe/Paris)**. This is the checked-in summary for
 teammates and analysis agents. Detailed numerical reports are generated locally
 under ignored `reports/`; they are not included when this source is pushed.
 The tables below preserve the observed aggregate results from this development
@@ -185,6 +185,45 @@ CSV prediction, author selection and request validation are covered by HTTP test
 The full synthetic/HTTP suite passed **43 tests**. The 200-keypress latest-window
 status may alert before the cumulative session median; neither proves impairment.
 
+## 6. Optional covariance-whitened kNN - 9 November
+
+Entry point: `whitening.py`; optional `identity_model.py train --whitening`; the
+`compare_models.py` and `window_experiment.py` benchmarks now include five methods.
+The original kNN and identity artifacts remain supported.
+
+The variant first applies the existing median/MAD scaling, then estimates the
+sample covariance using normal training windows only. It shrinks covariance toward
+the identity with fixed `lambda = 0.1` and uses a Cholesky factor instead of an
+explicit inverse:
+
+\[
+\Sigma_\lambda = 0.9\Sigma + 0.1I,\qquad z' = L^{-1}(z-\bar z),\qquad
+\Sigma_\lambda = LL^T
+\]
+
+The k=5 neighbour-distance score and normal calibration quantile are unchanged.
+A scale-relative `1e-10` diagonal jitter is only numerical stabilization. The
+covariance mean, factor and reference examples cannot change after scoring new
+windows. The optional identity model is `identity_whitened_knn`.
+
+Validation: **48 tests passed**, including covariance approaching identity on a
+full-rank synthetic training set, singular constant data, unchanged whitening on
+held-out data, optional identity prediction, HTTP regression and the optional
+LOF/Isolation Forest tests.
+
+The optional identity evaluation left every whole-session result unchanged from
+the original kNN snapshot: P01 normal false alerts 0/2 and other-author detections
+41/41; P02 0/4 and 31/31; P03 0/1 and 47/47 with tired false takeover alerts 3/3;
+P04 0/4 and 34/34 with impaired false takeover alerts 2/2. No independent normal
+test day exists.
+
+In the five-model benchmark, tired-labelled session alerts remained 3/3 for all
+five methods. Window-level tired alerts were: personal baseline 8/12, kNN 10/12,
+whitened kNN 12/12, LOF 8/12, Isolation Forest 10/12. Impaired-labelled session
+alerts were 2/2 for all methods except Isolation Forest at 0/2. These are the same
+provisional recordings, not an independent-day model ranking or evidence that
+whitening improves identity verification.
+
 ## Reproduce after pulling
 
 Repository layout update on 8 November: P02's 20 current recording pairs moved
@@ -210,7 +249,7 @@ python identity_model.py train --data ..\..
 # P04 timing/backspace/alignment pilot; no third-party packages required.
 python p04_experiment.py --data ..\..
 
-# Optional four-model and window-size benchmarks.
+# Optional five-model and window-size benchmarks.
 python -m venv .venv-comparison
 .\.venv-comparison\Scripts\python.exe -m pip install -r requirements-comparison.txt
 .\.venv-comparison\Scripts\python.exe compare_models.py --data ..\..

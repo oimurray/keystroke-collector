@@ -14,6 +14,7 @@ import sys
 from compare_models import calibrate, cell, fraction, rates
 from keystroke_model import FEATURES, extract, fingerprint, load_sessions, read_csv, save_json, select_windows
 from p04_experiment import FeatureKNN, TIMING, identity_split
+from whitening import WhitenedFeatureKNN, whiten_features
 
 
 VERSION = 1
@@ -21,14 +22,19 @@ VERSION = 1
 
 def score_window(profile, features):
     names = profile["features"]
-    distances = [(math.sqrt(st.mean(((features[n] - ex[n]) / profile["scale"][n]) ** 2 for n in names)), i)
+    if profile.get("whitening"):
+        features = whiten_features(profile["whitening"], features, profile["scale"])
+        scale = {name: 1.0 for name in names}
+    else:
+        scale = profile["scale"]
+    distances = [(math.sqrt(st.mean(((features[n] - ex[n]) / scale[n]) ** 2 for n in names)), i)
                  for i, ex in enumerate(profile["examples"])]
     nearest = sorted(distances)[:profile["k"]]
     score = st.mean(d for d, _ in nearest)
     changes = []
     for n in names:
         reference = st.mean(profile["examples"][i][n] for _, i in nearest)
-        deviation = math.sqrt(st.mean(((features[n] - profile["examples"][i][n]) / profile["scale"][n]) ** 2 for _, i in nearest))
+        deviation = math.sqrt(st.mean(((features[n] - profile["examples"][i][n]) / scale[n]) ** 2 for _, i in nearest))
         changes.append({"feature": n, "observed": features[n], "baseline": reference, "deviation": deviation})
     return {"score": score, "unusual": score > profile["threshold"],
             "top_changes": sorted(changes, key=lambda c: c["deviation"], reverse=True)[:3],
@@ -48,7 +54,7 @@ def score_windows(profile, windows):
 
 
 def get_profile(model, expected):
-    if model.get("version") != VERSION or model.get("method") != "identity_knn":
+    if model.get("version") != VERSION or model.get("method") not in {"identity_knn", "identity_whitened_knn"}:
         raise ValueError("Unsupported identity model. Run identity-demo.cmd to rebuild it.")
     if not isinstance(expected, str) or expected not in model["profiles"]:
         raise ValueError("Choose an expected author with a trained fixed-text baseline.")
@@ -88,6 +94,7 @@ def public_description(model, live_available=True):
     return {"window_size": model["window_size"], "k": model["k"], "features": list(TIMING),
             "reference": Path(__file__).with_name("fixed_passage.txt").read_text(encoding="utf-8").strip(),
             "trained_utc": model["trained_utc"], "live_available": live_available,
+            "covariance_whitening": model["method"] == "identity_whitened_knn",
             "profiles": [{"participant": pid, **{n: p[n] for n in
                           ("validation", "training_windows", "calibration_windows", "normal_test_recordings", "independent_normal_test_days")}}
                          for pid, p in model["profiles"].items()],
@@ -95,20 +102,21 @@ def public_description(model, live_available=True):
             "replays": [{n: r[n] for n in ("id", "participant", "session", "label", "window_count")} for r in model["replays"]]}
 
 
-def build(root, k=5, false_alarm=.05):
+def build(root, k=5, false_alarm=.05, whitening=False):
     if not isinstance(k, int) or k < 1 or not 0 < false_alarm < .5:
         raise ValueError("Use positive k and 0 < false-alarm target < 0.5.")
     sessions, skipped = load_sessions(root, 200)
     if not sessions:
         raise ValueError("No readable recordings found.")
-    model = {"version": VERSION, "method": "identity_knn", "window_size": 200, "k": k,
-             "trained_utc": datetime.now(timezone.utc).isoformat(), "profiles": {}, "replays": [],
-             "unavailable_profiles": {}, "evaluation_summary": {}}
+    model = {"version": VERSION, "method": "identity_whitened_knn" if whitening else "identity_knn",
+             "window_size": 200, "k": k, "trained_utc": datetime.now(timezone.utc).isoformat(),
+             "profiles": {}, "replays": [], "unavailable_profiles": {}, "evaluation_summary": {}}
     report = {"created_utc": model["trained_utc"], "python_version": platform.python_version(), "k": k,
               "window_size": 200, "features": list(TIMING), "false_alarm_target_per_window": false_alarm,
+              "covariance_whitening": whitening,
               "members": {}, "skipped_files": skipped,
               "source_code_hashes": {name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                                     for name in ("identity_model.py", "p04_experiment.py", "keystroke_model.py", "compare_models.py")},
+                                     for name in ("identity_model.py", "p04_experiment.py", "keystroke_model.py", "compare_models.py", "whitening.py")},
               "limitations": ["Recording-held-out results are provisional without independent normal test days.",
                               "Other-author recordings are offline takeover proxies; keyboards and recording days can confound separation.",
                               "Same-author condition alerts are false identity alerts, not successful takeover detections or diagnoses.",
@@ -127,11 +135,12 @@ def build(root, k=5, false_alarm=.05):
             model["unavailable_profiles"][pid] = reason
             report["members"][pid] = {"status": "insufficient_data", "reason": reason, "splits": splits}
             continue
-        estimator = FeatureKNN(tw, TIMING, k)
+        estimator = WhitenedFeatureKNN(tw, TIMING, k) if whitening else FeatureKNN(tw, TIMING, k)
         threshold = calibrate([estimator.score(w) for w in cw], false_alarm)
         reference_days = {s["day"] for s in training + calibration}
         profile = {"features": list(TIMING), "k": k, "center": estimator.center, "scale": estimator.scale,
                    "examples": estimator.examples, "threshold": threshold, "validation": validation,
+                   "whitening": estimator.model if whitening else None,
                    "training_windows": len(tw), "calibration_windows": len(cw), "normal_test_recordings": len(testing),
                    "independent_normal_test_days": sorted({s["day"] for s in testing} - reference_days),
                    "reference_hashes": [s["hash"] for s in training + calibration],
@@ -216,6 +225,7 @@ def main():
     train.add_argument("--report-dir", type=Path)
     train.add_argument("--k", type=int, default=5)
     train.add_argument("--false-alarm-target", type=float, default=.05)
+    train.add_argument("--whitening", action="store_true")
     serve = sub.add_parser("serve")
     serve.add_argument("--model", type=Path, default=Path("models/identity.json"))
     serve.add_argument("--port", type=int, default=8768)
@@ -225,7 +235,7 @@ def main():
             directory = args.report_dir or Path("reports/member_evaluation") / datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
             if directory.exists():
                 raise ValueError("Choose a new report directory; earlier evaluations are preserved.")
-            model, report = build(args.data, args.k, args.false_alarm_target)
+            model, report = build(args.data, args.k, args.false_alarm_target, args.whitening)
             directory.mkdir(parents=True)
             save_json(directory / "results.json", report)
             (directory / "summary.md").write_text(summary_markdown(report), encoding="utf-8")

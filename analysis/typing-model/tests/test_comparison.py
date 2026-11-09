@@ -18,7 +18,7 @@ def add_session(root, sid, day, label="normal", hold=80, count=600, text_type="f
 
 @unittest.skipUnless(importlib.util.find_spec("sklearn"), "Optional comparison dependencies are not installed")
 class ComparisonTests(unittest.TestCase):
-    def test_shared_day_splits_and_metrics_for_all_four_models(self):
+    def test_shared_day_splits_and_metrics_for_all_five_models(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             for sid in (1, 2, 3):
