@@ -14,11 +14,11 @@
 <main>
 <div class="layout">
 <aside>
-<section class="panel"><div class="step">01 / Choose the expected author</div><label class="field" for="expected">Expected author</label><select id="expected" disabled><option>Loading member profiles…</option></select><p id="profile-note" class="small profile-note"></p><div id="profile-validation"></div><p class="small">kNN · k=<span id="k">5</span> · 8 timing features<br>Each author has a separately calibrated threshold.</p>
+<section class="panel"><div class="step">01 / Choose the expected author</div><label class="field" for="expected">Expected author</label><select id="expected" disabled><option>Loading member profiles…</option></select><p id="profile-note" class="small profile-note"></p><div id="profile-validation" hidden><span class="badge neutral">Independent normal test days available</span></div><p class="small">kNN · k=<span id="k">5</span> · 8 timing features<br>Each author has a separately calibrated threshold.</p>
 <div class="modes" role="group" aria-label="Input source"><button type="button" data-mode="live" aria-pressed="true">Live typing</button><button type="button" data-mode="csv" aria-pressed="false">CSV upload</button><button type="button" data-mode="replay" aria-pressed="false">Replay</button></div>
 <div id="source-live"><p class="small">Timing is recorded only in the typing box while recording is active. Files are not saved by the server.</p><button id="start" class="primary full" disabled>Start typing session</button><div class="row" style="margin-top:10px"><button id="stop" class="secondary" disabled>Stop &amp; score</button><button id="handover" class="secondary" disabled>Mark handover</button></div><p class="small">Hand the keyboard to another member while keeping the expected author unchanged. Marking a handover starts a fresh timing segment.</p></div>
 <div id="source-csv" hidden><label class="field" for="csv">Exported session CSV</label><input id="csv" type="file" accept=".csv,text/csv"><p class="small">The selected expected author determines the comparison. The participant ID in the file is shown as context after scoring.</p><button id="upload" class="primary full">Compare recording</button></div>
-<div id="source-replay" hidden><label class="field" for="replay">Recorded example</label><select id="replay"></select><p class="small">A prerecorded example, using stored numerical windows. Its score is recomputed against your selected expected author.</p><button id="load-replay" class="primary full">Load recorded replay</button><div id="replay-controls" class="row" style="margin-top:12px" hidden><button id="previous" class="secondary">← Previous</button><button id="next" class="secondary">Next window →</button><small id="replay-progress"></small></div></div>
+<div id="source-replay" hidden><label class="field" for="replay">Recorded example</label><select id="replay"></select><p class="small">A prerecorded example, using stored numerical windows. Its score is recomputed against your selected expected author.</p><button id="load-replay" class="primary full">Load recorded replay</button></div>
 <button id="reset" class="secondary full">Clear session</button>
 </section>
 <section class="panel"><div class="step">How the check works</div><p class="small">Each window becomes eight hold-time and transition-time summaries. Its score is the mean distance to the expected author’s five nearest normal training windows.</p>
@@ -44,7 +44,7 @@ const el = (tag, text, cls) => { const e = document.createElement(tag); if (text
 const fmt = value => Number(value).toLocaleString(undefined, {maximumFractionDigits: 2});
 const featureNames = {hold_median_ms:'Key hold · median',hold_iqr_ms:'Key hold · spread',hold_p90_ms:'Key hold · 90th percentile',dd_median_ms:'Press-to-press · median',dd_iqr_ms:'Press-to-press · spread',dd_p90_ms:'Press-to-press · 90th percentile',ud_median_ms:'Release-to-press · median',ud_iqr_ms:'Release-to-press · spread'};
 let config, mode = 'live', recorder, active = false, rows = [], origin = 0, liveParticipant = '', liveSession = '';
-let data = null, replayIndex = 0, requestVersion = 0, timer;
+let data = null, requestVersion = 0, timer;
 const message = (text = '', error = false) => { const box = $('#message'); box.replaceChildren(); if (text) box.append(el('p', text, error ? 'error' : 'small')); };
 function makeTable(headers, values) {
   const wrap = el('div', undefined, 'scroll'), table = el('table'), head = el('thead'), tr = el('tr'), body = el('tbody');
@@ -56,10 +56,10 @@ function makeTable(headers, values) {
 function updateProfile() {
   const p = config.profiles.find(p => p.participant === $('#expected').value);
   $('#profile-note').textContent = `${p.training_windows} training windows · ${p.calibration_windows} calibration windows · ${p.normal_test_recordings} normal test recordings`;
-  $('#profile-validation').replaceChildren(el('span', p.independent_normal_test_days.length ? 'Independent normal test days available' : 'Provisional · no independent normal test day', 'badge neutral'));
+  $('#profile-validation').hidden = !p.independent_normal_test_days.length;
 }
 function resetResult() {
-  requestVersion++; data = null; replayIndex = 0; $('#replay-controls').hidden = true; message();
+  requestVersion++; data = null; message();
   const section = el('section', undefined, 'panel empty'); section.append(el('div', '⌁', 'symbol'), el('h2', 'Ready for an author check.'), el('p', `Compare a complete window with ${$('#expected').value || 'the expected author'}’s baseline.`)); $('#result').replaceChildren(section);
 }
 function stopCapture(score = true) {
@@ -94,10 +94,9 @@ async function post(path, body, source) {
     if (!response.ok) throw Error(result.error || 'Could not compare the recording.');
     if (version !== requestVersion) return null;
     const windowsChanged = JSON.stringify(data?.windows ?? []) !== JSON.stringify(result.windows);
-    data = result; replayIndex = 0;
+    data = result;
     if (!progressUpdate) message();
-    if (source === 'replay') { $('#replay-controls').hidden = false; updateReplayControls(); }
-    if (!progressUpdate || windowsChanged) renderResult(source === 'replay' ? 0 : result.windows.length - 1);
+    if (!progressUpdate || windowsChanged) renderResult();
     return result;
   } catch (error) { if (version === requestVersion) message(error.message, true); return null; }
 }
@@ -157,7 +156,7 @@ function inspectWindow(w) {
   for (const n of w.neighbors) { const row=el('div',undefined,'neighbor'),track=el('div',undefined,'track'),fill=el('div');fill.style.width=`${n.distance/max*100}%`;track.append(fill);row.append(el('span',`Reference #${n.reference_window}`),track,el('span',fmt(n.distance)));box.append(row); }
   box.append(el('p','The mean neighbour distance is this window’s score. These references belong to the expected author’s normal training recordings.','small')); return box;
 }
-function renderResult(index) {
+function renderResult() {
   if (!data) return;
   const target = $('#result'), section = el('section',undefined,'panel');
   const sourceLabel = data.source === 'recorded_replay' ? `Recorded replay · ${data.recording_participant} / ${data.recording_session} · ${data.recording_label}` : mode === 'live' ? 'Live capture · only the typing box is recorded' : `Uploaded CSV · file identifies ${data.recording_participant} / ${data.recording_session}`;
@@ -167,7 +166,7 @@ function renderResult(index) {
   if (!data.windows.length) {
     section.append(el('h2','More fixed-text typing needed','status-title'),el('p',`${data.quality.usable_keypresses || 0} usable fixed-text keypresses were extracted. At least 200 in an uninterrupted segment are needed.`)); target.replaceChildren(section); return;
   }
-  const windows = data.windows.slice(0,index+1), latest = windows[windows.length-1];
+  const windows = data.windows, latest = windows[windows.length-1];
   section.append(el('h2',latest.unusual ? `Change from ${data.expected_participant}’s baseline` : `Consistent with ${data.expected_participant}`,'status-title'),el('span',`Latest completed window · ${latest.window}`,`badge ${latest.unusual?'warn':''}`));
   const guess = authorGuess(latest);
   if (guess) section.append(' ', el('span',guess,'badge warn'));
@@ -182,7 +181,6 @@ function renderResult(index) {
   const download=el('button','Download result JSON','secondary');download.addEventListener('click',()=>{const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'})),a=el('a');a.href=url;a.download='author-check.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
   section.append(label,select,detail,all,download);target.replaceChildren(section);
 }
-function updateReplayControls() { $('#previous').disabled=replayIndex<=0;$('#next').disabled=!data || replayIndex>=data.windows.length-1;$('#replay-progress').textContent=data?`${replayIndex+1} / ${data.windows.length}`:''; }
 $('#expected').addEventListener('change',()=>{clearSession();updateProfile();});
 document.querySelectorAll('[data-mode]').forEach(button=>button.addEventListener('click',()=>setMode(button.dataset.mode)));
 $('#reset').addEventListener('click',clearSession);
@@ -204,8 +202,6 @@ $('#upload').addEventListener('click',async()=>{
   const button=$('#upload');button.disabled=true;try{await post('/api/identity/predict',{csv:await file.text()},'csv');}catch(error){message(error.message,true);}finally{button.disabled=false;}
 });
 $('#load-replay').addEventListener('click',async()=>{const button=$('#load-replay');button.disabled=true;try{await post('/api/identity/replay',{replay_id:$('#replay').value},'replay');}finally{button.disabled=false;}});
-$('#previous').addEventListener('click',()=>{replayIndex--;updateReplayControls();renderResult(replayIndex);});
-$('#next').addEventListener('click',()=>{replayIndex++;updateReplayControls();renderResult(replayIndex);});
 async function initialize() {
   try {
     const response=await fetch('/api/identity/profiles'),result=await response.json();if(!response.ok)throw Error(result.error);config=result;

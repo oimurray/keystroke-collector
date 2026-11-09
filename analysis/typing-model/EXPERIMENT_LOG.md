@@ -224,6 +224,38 @@ alerts were 2/2 for all methods except Isolation Forest at 0/2. These are the sa
 provisional recordings, not an independent-day model ranking or evidence that
 whitening improves identity verification.
 
+## 7. Neighbour-count sensitivity check - 9 November
+
+Compared k = 1, 3, 4, 5 and 7 for the fixed-text identity demo. All runs
+used the same 200-keypress windows, eight timing features, MAD-scaled
+Euclidean distance and per-author recording splits. Each k got a fresh
+threshold per author using the same normal calibration recordings and
+nominal 5% per-window target. The k = 5 run reproduced the demo profiles
+and thresholds.
+
+The test set contained 42 windows from 11 held-out normal recordings
+across P01-P04. Each window was scored once against its own author
+and once against each of the other three expected authors, giving
+126 other-author comparisons. All test recordings were held out
+from every profile's training and calibration. A flagged window
+received a guess only when exactly one other enrolled profile fit
+within its own threshold.
+
+| k | Normal windows falsely flagged | Other-author comparisons flagged | Correct author guesses | No clear author match |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 0/42 | 126/126 | 126/126 | 0 |
+| 3 | 0/42 | 126/126 | 126/126 | 0 |
+| 4 | 1/42 | 126/126 | 123/126 | 3 |
+| 5 | 1/42 | 126/126 | 123/126 | 3 |
+| 7 | 2/42 | 126/126 | 120/126 | 6 |
+
+No setting returned a wrong author name. At k = 5, the three abstentions
+came from one P03 window scored against three other profiles. Keep
+**k = 5** as the working demo preset. The small differences favouring
+k = 1 and k = 3 on these recordings are exploratory. The 126 comparisons
+reuse the same 42 windows, and the study has no independent normal
+test days.
+
 ## Reproduce after pulling
 
 Repository layout update on 8 November: P02's 20 current recording pairs moved
